@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Metallic Silver Gradient for Gear and Arrow -->
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="50%" stop-color="#A0AEC0"/>
+      <stop offset="100%" stop-color="#4A5568"/>
+    </linearGradient>
+    
+    <!-- Darker Metal Gradient for Tyre -->
+    <linearGradient id="darkMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#718096"/>
+      <stop offset="100%" stop-color="#2D3748"/>
+    </linearGradient>
+    
+    <!-- Deep Red Gradient for Candlesticks -->
+    <linearGradient id="redGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#820000"/>
+      <stop offset="100%" stop-color="#E53E3E"/>
+    </linearGradient>
+    
+    <!-- Clip path to keep candlesticks perfectly inside the inner rim -->
+    <clipPath id="innerCircle">
+      <circle cx="250" cy="250" r="115" />
+    </clipPath>
+  </defs>
+
+  <!-- BACKGROUND: Transparent, optimized with borders for both light and dark modes -->
+
+  <!-- 1. GEAR (Bottom Half) -->
+  <!-- Gear Ring -->
+  <path d="M 120 250 A 130 130 0 0 0 380 250" fill="none" stroke="url(#metal)" stroke-width="24" stroke-linecap="butt"/>
+
+  <!-- Gear Teeth -->
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(-85, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(-64, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(-43, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(-22, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(-1, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(20, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(41, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(62, 250, 250)" />
+  <polygon points="238,388 262,388 256,402 244,402" fill="url(#metal)" stroke="#1A202C" stroke-width="2" stroke-linejoin="round" transform="rotate(83, 250, 250)" />
+
+  <!-- 2. TYRE (Top Half) -->
+  <!-- Tyre Ring -->
+  <path d="M 120 250 A 130 130 0 0 1 380 250" fill="none" stroke="url(#darkMetal)" stroke-width="24" stroke-linecap="butt"/>
+
+  <!-- Tyre Treads -->
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(275, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(275, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(291, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(291, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(307, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(307, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(323, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(323, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(339, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(339, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(355, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(355, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(11, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(11, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(27, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(27, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(43, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(43, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(59, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(59, 250, 250)" />
+    
+    <path d="M 235,112 L 265,112 L 262,96 L 238,96 Z" fill="url(#darkMetal)" stroke="#1A202C" stroke-width="2" transform="rotate(75, 250, 250)" />
+    <line x1="242" y1="104" x2="258" y2="104" stroke="#1A202C" stroke-width="3" transform="rotate(75, 250, 250)" />
+  </g>
+
+  <!-- Inner Border Ring (Separates outer wheel from chart) -->
+  <circle cx="250" cy="250" r="117" fill="none" stroke="#1A202C" stroke-width="4" />
+
+  <!-- 3. CANDLESTICK CHART -->
+  <g clip-path="url(#innerCircle)">
+    <line x1="152" y1="240" x2="152" y2="370" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="140" y="270" width="24" height="100" fill="url(#redGrad)" stroke="#1A202C" stroke-width="2" rx="2" />
+    
+    <line x1="192" y1="200" x2="192" y2="370" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="180" y="230" width="24" height="140" fill="url(#redGrad)" stroke="#1A202C" stroke-width="2" rx="2" />
+    
+    <line x1="232" y1="140" x2="232" y2="370" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="220" y="180" width="24" height="190" fill="url(#redGrad)" stroke="#1A202C" stroke-width="2" rx="2" />
+    
+    <line x1="272" y1="90" x2="272" y2="370" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="260" y="130" width="24" height="240" fill="url(#redGrad)" stroke="#1A202C" stroke-width="2" rx="2" />
+    
+    <line x1="312" y1="40" x2="312" y2="370" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="300" y="80" width="24" height="290" fill="url(#redGrad)" stroke="#1A202C" stroke-width="2" rx="2" />
+  </g>
+
+  <!-- 4. SWOOPING ARROW -->
+  <!-- Main dynamic arrow shape -->
+  <path d="M 60,330 Q 250,390 380,120 L 415,145 L 440,65 L 355,85 L 375,115 Q 240,325 50,300 Z" fill="url(#metal)" stroke="#1A202C" stroke-width="4" stroke-linejoin="round"/>
+  
+  <!-- Arrow inner highlight for 3D metallic feel -->
+  <path d="M 65,315 Q 245,365 375,120 L 420,78 L 375,98" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+</svg>

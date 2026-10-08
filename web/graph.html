@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#e8ecf5" />
+    <title>Equity Rush dashboard</title>
+    <script>
+      (function () {
+        var m = localStorage.getItem("br_theme") || "auto";
+        var d =
+          m === "dark" ||
+          (m === "auto" &&
+            window.matchMedia &&
+            matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = d ? "dark" : "light";
+      })();
+    </script>
+    <link rel="icon" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/theme.css" />
+    <style>
+      html,
+      body {
+        height: auto;
+        overflow: auto;
+      }
+      input {
+        background: var(--well);
+        border: 0;
+        border-radius: 18px;
+        padding: 13px 16px;
+        width: 100%;
+        box-shadow: var(--inset);
+        color: var(--ink);
+      }
+      input:focus {
+        outline: none;
+        box-shadow:
+          var(--inset),
+          0 0 0 3px rgba(139, 143, 255, 0.5);
+      }
+
+      /* ---------- key gate ---------- */
+      .gate {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+      .gate .box {
+        width: min(400px, 100%);
+        display: grid;
+        gap: 16px;
+        background: var(--sf);
+        box-shadow: var(--clay);
+        border-radius: 34px;
+        padding: 32px;
+      }
+      .gate h1 {
+        font-size: 34px;
+        letter-spacing: -0.04em;
+        font-weight: 900;
+      }
+      .btn.full {
+        display: block;
+        width: 100%;
+      }
+
+      /* ---------- dashboard ---------- */
+      .d {
+        --gap: clamp(10px, 1.1vw, 18px);
+        font-size: clamp(13px, 0.55vw + 8px, 19px);
+        display: grid;
+        gap: var(--gap);
+        padding: calc(var(--safe-t) + 14px) 14px calc(var(--safe-b) + 16px);
+        max-width: 2200px;
+        margin: 0 auto;
+      }
+      .card {
+        background: var(--sf);
+        box-shadow: var(--clay);
+        border-radius: 1.6em;
+        padding: 1.05em 1.25em;
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .ct {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.6em;
+        margin-bottom: 0.55em;
+      }
+      .ct b {
+        font-size: 1.1em;
+        font-weight: 800;
+      }
+      small {
+        font-size: 0.8em;
+      }
+
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 0.9em;
+        flex-wrap: wrap;
+      }
+      .id {
+        display: flex;
+        align-items: center;
+        gap: 0.7em;
+        margin-right: auto;
+        min-width: 0;
+      }
+      .id .lg svg {
+        width: 2.6em;
+        height: 2.6em;
+        display: block;
+        filter: drop-shadow(3px 4px 6px rgba(76, 80, 224, 0.3));
+      }
+      .id b {
+        font-size: 1.9em;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+      }
+      .arena {
+        font-weight: 800;
+        font-size: 1.1em;
+        color: var(--mut);
+      }
+      .st {
+        padding: 0.3em 0.9em;
+        border-radius: 1em;
+        font-weight: 800;
+        font-size: 0.85em;
+      }
+      .st.live {
+        background: var(--up-l);
+        color: var(--up);
+      }
+      .st.hold {
+        background: var(--gold-l);
+        color: var(--gold);
+      }
+      .st.off {
+        background: var(--dn-l);
+        color: var(--dn);
+      }
+      .clk {
+        font-size: 1.9em;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .ctl {
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+        flex-wrap: wrap;
+        transition: opacity 0.3s;
+      }
+      .arenas,
+      .rchips {
+        display: flex;
+        gap: 0.4em;
+        flex-wrap: wrap;
+      }
+      .arenas button,
+      .rchips button,
+      .ib {
+        padding: 0.55em 1em;
+        border-radius: 1.1em;
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+        color: var(--mut);
+        font-weight: 700;
+        font-size: 0.85em;
+      }
+      .arenas button.on,
+      .rchips button.on {
+        box-shadow: var(--inset);
+        background: var(--pri-l);
+        color: var(--pri);
+      }
+      .ib {
+        display: grid;
+        place-items: center;
+        width: auto;
+        height: auto;
+        border-radius: 1.1em;
+      }
+      .ib svg.i {
+        width: 1.2em;
+        height: 1.2em;
+      }
+
+      .strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
+        gap: var(--gap);
+      }
+      .stat {
+        background: var(--well);
+        box-shadow: var(--inset);
+        border-radius: 1.3em;
+        padding: 0.7em 1.1em;
+        min-width: 0;
+      }
+      .stat small {
+        display: block;
+        color: var(--mut);
+        font-weight: 600;
+      }
+      .stat b {
+        display: block;
+        font-size: 1.45em;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .split {
+        display: flex;
+        height: 0.5em;
+        border-radius: 0.3em;
+        overflow: hidden;
+        margin-top: 0.35em;
+        background: var(--line);
+      }
+      .split i {
+        display: block;
+        height: 100%;
+      }
+      .split i.u {
+        background: var(--up);
+      }
+      .split i.d {
+        background: var(--dn);
+      }
+
+      .grid,
+      .left,
+      .right {
+        display: grid;
+        gap: var(--gap);
+        min-width: 0;
+        min-height: 0;
+      }
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .idx .ih {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 1em;
+        flex-wrap: wrap;
+      }
+      .idx .iv {
+        font-size: 3.4em;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.25em;
+        flex-wrap: wrap;
+      }
+      .chg {
+        display: inline-block;
+        padding: 0.2em 0.6em;
+        border-radius: 0.7em;
+        font-weight: 800;
+        font-size: 0.8em;
+        letter-spacing: 0;
+      }
+      .idx .iv .chg {
+        font-size: 0.34em;
+      }
+      .chg.u {
+        background: var(--up-l);
+        color: var(--up);
+      }
+      .chg.d {
+        background: var(--dn-l);
+        color: var(--dn);
+      }
+      .im {
+        display: flex;
+        gap: 1.2em;
+        color: var(--mut);
+        font-weight: 600;
+        flex-wrap: wrap;
+      }
+      .im b {
+        color: var(--ink);
+      }
+      .cb {
+        position: relative;
+        flex: 1;
+        min-height: 260px;
+        margin-top: 0.4em;
+        contain: layout paint;
+      }
+
+      .sg {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(13em, 1fr));
+        gap: calc(var(--gap) * 0.8);
+        flex: 1;
+        min-height: 0;
+      }
+      .sc {
+        background: var(--well);
+        box-shadow: var(--inset);
+        border-radius: 1.3em;
+        padding: 0.7em 0.95em;
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15em;
+      }
+      .sc .sh {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5em;
+      }
+      .sc .sh b {
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sc .sv {
+        font-size: 1.55em;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .sc svg.sp {
+        width: 100%;
+        flex: 1;
+        min-height: 2.2em;
+        height: 3em;
+        display: block;
+      }
+      .sc svg.sp polyline {
+        fill: none;
+        stroke-width: 2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        vector-effect: non-scaling-stroke;
+      }
+      .sc svg.sp polygon {
+        stroke: none;
+        opacity: 0.16;
+      }
+      .sc svg.sp.u polyline {
+        stroke: var(--up);
+      }
+      .sc svg.sp.u polygon {
+        fill: var(--up);
+      }
+      .sc svg.sp.d polyline {
+        stroke: var(--dn);
+      }
+      .sc svg.sp.d polygon {
+        fill: var(--dn);
+      }
+      .sc small {
+        color: var(--mut);
+        font-weight: 600;
+      }
+
+      .lst {
+        display: grid;
+        align-content: start;
+        gap: 0.1em;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.2em;
+        flex: 1;
+        min-height: 0;
+      }
+      .two > div {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+      }
+      .two h3 {
+        margin: 0 0 0.3em;
+        font-size: 0.85em;
+        color: var(--mut);
+        font-weight: 700;
+      }
+      .mr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 0.1em 0.7em;
+        padding: 0.45em 0;
+        border-top: 1px solid var(--line);
+      }
+      .mr:first-child {
+        border-top: 0;
+      }
+      .mr b {
+        font-weight: 800;
+      }
+      .mr small {
+        grid-column: 1;
+        color: var(--mut);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .mr .chg {
+        grid-column: 2;
+        grid-row: 1 / 3;
+      }
+
+      .lr {
+        display: grid;
+        grid-template-columns: 1.8em 1.9em minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 0.6em;
+        padding: 0.4em 0;
+        border-top: 1px solid var(--line);
+      }
+      .lr:first-child {
+        border-top: 0;
+      }
+      .lr .rk {
+        font-weight: 900;
+        color: var(--mut);
+        text-align: center;
+      }
+      .lr .rk.r1 {
+        color: #d99a00;
+      }
+      .lr .rk.r2 {
+        color: #8d97b3;
+      }
+      .lr .rk.r3 {
+        color: #c0773a;
+      }
+      .lr .av {
+        font-size: 1.4em;
+        line-height: 1;
+        text-align: center;
+      }
+      .lr b {
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .lr .lw {
+        font-weight: 800;
+      }
+
+      .nw {
+        display: grid;
+        gap: 0.25em;
+        padding: 0.6em 0.9em;
+        margin: 0.25em 0;
+        border-radius: 1.1em;
+        background: var(--well);
+        box-shadow: var(--inset);
+        border-left: 0.35em solid var(--sc, transparent);
+        min-width: 0;
+      }
+      .nw.sn2 {
+        --sc: var(--nm2-bg);
+      }
+      .nw.sn1 {
+        --sc: var(--nm1-bg);
+      }
+      .nw.s0 {
+        --sc: var(--n0-bg);
+      }
+      .nw.s1 {
+        --sc: var(--n1-bg);
+      }
+      .nw.s2 {
+        --sc: var(--n2-bg);
+      }
+      .nw .meta {
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+        color: var(--mut);
+        font-size: 0.8em;
+        flex-wrap: wrap;
+      }
+      .nw h4 {
+        margin: 0;
+        font-size: 1.05em;
+        line-height: 1.25;
+        font-weight: 800;
+      }
+      .chip {
+        font-size: 0.85em;
+        font-weight: 700;
+        padding: 0.15em 0.6em;
+        border-radius: 0.8em;
+        background: var(--sf);
+      }
+      .tag {
+        font-size: 0.8em;
+        font-weight: 800;
+        padding: 0.15em 0.6em;
+        border-radius: 0.7em;
+      }
+      .locked {
+        display: grid;
+        gap: 0.7em;
+        align-content: center;
+        justify-items: start;
+        flex: 1;
+      }
+      .locked p {
+        margin: 0;
+        color: var(--mut);
+        max-width: 38ch;
+        line-height: 1.45;
+      }
+      .locked .row {
+        display: flex;
+        gap: 0.5em;
+        width: 100%;
+        max-width: 26em;
+      }
+      .locked .btn {
+        width: auto;
+        padding: 0.8em 1.2em;
+        font-size: 0.9em;
+      }
+
+      .tape {
+        overflow: hidden;
+        border-radius: 1.2em;
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+        padding: 0.7em 0;
+        white-space: nowrap;
+      }
+      .tape .tk {
+        display: inline-flex;
+        gap: 2.2em;
+        padding-left: 2.2em;
+        animation: tk 60s linear infinite;
+      }
+      .tape .ti {
+        font-weight: 700;
+      }
+      .tape .ti b {
+        font-weight: 800;
+        margin-right: 0.35em;
+      }
+      .tape .ti em,
+      .tape .ti i {
+        font-style: normal;
+      }
+      .tape .ti i {
+        margin-left: 0.35em;
+      }
+      .tape .ti i.u {
+        color: var(--up);
+      }
+      .tape .ti i.d {
+        color: var(--dn);
+      }
+      @keyframes tk {
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .tape {
+          overflow-x: auto;
+        }
+        .tape .tk {
+          animation: none;
+        }
+      }
+
+      .empty {
+        color: var(--mut);
+        padding: 0.8em 0;
+      }
+
+      /* wide screens and projectors: one fixed page, nothing scrolls */
+      @media (min-width: 1100px) and (min-height: 620px) {
+        html,
+        body {
+          height: 100%;
+          overflow: hidden;
+        }
+        .d {
+          height: 100vh;
+          height: 100dvh;
+          max-width: none;
+          padding: calc(var(--safe-t) + clamp(12px, 1.3vw, 26px))
+            clamp(14px, 1.6vw, 32px) calc(var(--safe-b) + clamp(12px, 1.3vw, 26px));
+          grid-template-rows: auto auto minmax(0, 1fr) auto;
+        }
+        .grid {
+          grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+        }
+        .left {
+          grid-template-rows: minmax(0, 1.55fr) minmax(0, 1fr);
+        }
+        .right {
+          grid-template-rows: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 1.2fr);
+        }
+        .right.locked-mode {
+          grid-template-rows: minmax(0, 1fr);
+        }
+        .card {
+          overflow: hidden;
+        }
+        .idx .iv {
+          font-size: 4em;
+        }
+        .cb {
+          min-height: 0;
+        }
+        body.idle {
+          cursor: none;
+        }
+        body.idle .ctl {
+          opacity: 0;
+          pointer-events: none;
+        }
+      }
+      @media (max-width: 720px) {
+        .idx .iv {
+          font-size: 2.6em;
+        }
+        .two {
+          grid-template-columns: 1fr;
+        }
+        .clk {
+          font-size: 1.4em;
+        }
+        .id b {
+          font-size: 1.5em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/chart.js"></script>
+    <script src="/icons.js"></script>
+    <script>
+      "use strict";
+      const $ = (s, r = document) => r.querySelector(s),
+        $$ = (s, r = document) => [...r.querySelectorAll(s)];
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const fmt = (v) =>
+        Number(v).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      const money = (n) => "Ꞩ" + fmt(n);
+      const money0 = (n) =>
+        "Ꞩ" + Math.round(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+      const compact = (n) =>
+        n >= 1e12
+          ? "Ꞩ" + (n / 1e12).toFixed(2) + "T"
+          : n >= 1e9
+            ? "Ꞩ" + (n / 1e9).toFixed(1) + "B"
+            : "Ꞩ" + (n / 1e6).toFixed(0) + "M";
+      const pc = (n) => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+      const ago = (ts) => {
+        const s = Math.max(0, ((Date.now() - ts) / 1000) | 0);
+        return s < 10
+          ? "just now"
+          : s < 60
+            ? s + "s ago"
+            : s < 3600
+              ? ((s / 60) | 0) + "m ago"
+              : ((s / 3600) | 0) + "h ago";
+      };
+      const SENT = (n) => {
+        const a = Math.abs(n),
+          l = a < 1 ? 0 : a < 5 ? 1 : 2;
+        return n < 0
+          ? ["s0", "sn1", "sn2"][l]
+          : ["s0", "s1", "s2"][l];
+      };
+      const RANGES = [
+        ["10m", 600],
+        ["30m", 1800],
+        ["2h", 7200],
+        ["All", 0],
+      ];
+
+      let KEY = sessionStorage.getItem("gk") || "",
+        R = "alpha",
+        OV = null,
+        D = null,
+        FULL = false,
+        START = 10000,
+        span = 1800,
+        charts = {},
+        ser = {},
+        sig = "",
+        rightMode = "",
+        tapeSig = "",
+        tLive,
+        tFull,
+        tClock,
+        idleT;
+      const root = $("#root");
+      const cache = {};
+      const setH = (id, h) => {
+        const el = typeof id === "string" ? $("#" + id) : id;
+        if (el && cache[el.id || ""] !== h) {
+          cache[el.id || ""] = h;
+          el.innerHTML = h;
+          return true;
+        }
+        return false;
+      };
+
+      /* ---------- theme ---------- */
+      const themeMode = () => localStorage.getItem("br_theme") || "auto";
+      const isDark = () => {
+        const m = themeMode();
+        return (
+          m === "dark" ||
+          (m === "auto" && matchMedia("(prefers-color-scheme: dark)").matches)
+        );
+      };
+      function applyTheme(mode) {
+        if (mode) localStorage.setItem("br_theme", mode);
+        document.documentElement.dataset.theme = isDark() ? "dark" : "light";
+        Chart._c = null;
+        Object.values(charts).forEach((c) => c.draw());
+        const b = $("#themebtn");
+        if (b) b.innerHTML = ic(isDark() ? "sun" : "moon");
+      }
+
+      /* ---------- data ---------- */
+      async function api(path) {
+        const r = await fetch("/api/graph/" + path, {
+          headers: { "X-Graph": KEY },
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || "Request failed");
+        return j;
+      }
+      async function fetchFull() {
+        const r = await fetch(
+          "/api/admin/overview?realm=" + R + "&sections=companies,news,players",
+          { headers: { "X-Admin": KEY } },
+        );
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.realm) throw new Error("locked");
+        return j.realm;
+      }
+      async function tryFull() {
+        try {
+          D = await fetchFull();
+          FULL = true;
+        } catch (e) {
+          FULL = false;
+          D = null;
+        }
+        setRight();
+      }
+
+      /* ---------- gate ---------- */
+      function gate(msg = "") {
+        clearInterval(tLive);
+        clearInterval(tFull);
+        clearInterval(tClock);
+        Object.values(charts).forEach((c) => c.destroy());
+        charts = {};
+        sig = "";
+        rightMode = "";
+        FULL = false;
+        root.innerHTML = `<div class="gate"><div class="box"><h1>Market dashboard</h1><small>Enter the dashboard key to start the display.</small>
+    <input id="key" type="password" placeholder="Dashboard key" autofocus><button class="btn full" id="in">Unlock</button><div class="dn" id="msg">${esc(msg)}</div></div></div>`;
+        const go = async () => {
+          KEY = $("#key").value;
+          try {
+            await api("overview?realm=" + R);
+            sessionStorage.setItem("gk", KEY);
+            start();
+          } catch (e) {
+            $("#msg").textContent = e.message;
+          }
+        };
+        $("#in").onclick = go;
+        $("#key").onkeydown = (e) => {
+          if (e.key === "Enter") go();
+        };
+      }
+
+      /* ---------- shell ---------- */
+      function start() {
+        root.innerHTML = `<div class="d">
+      <header class="top">
+        <div class="id"><span class="lg">${LOGO}</span><b>Equity Rush</b><span class="arena" id="arena"></span><span class="st" id="st"></span></div>
+        <div class="ctl" id="ctl">
+          <div class="arenas" id="arenas"></div>
+          <div class="rchips" id="rc">${RANGES.map((r) => `<button data-r="${r[1]}" class="${r[1] === span ? "on" : ""}">${r[0]}</button>`).join("")}</div>
+          <button class="ib" id="fsbtn" aria-label="Full screen">${ic("expand")}</button>
+          <button class="ib" id="themebtn" aria-label="Toggle dark mode"></button>
+          <button class="ib" id="out">Lock</button>
+        </div>
+        <div class="clk" id="clk"></div>
+      </header>
+      <section class="strip" id="strip"></section>
+      <main class="grid">
+        <div class="left">
+          <section class="card idx">
+            <div class="ih"><div><small>Total market index</small><div class="iv" id="iv"></div></div><div class="im" id="im"></div></div>
+            <div class="cb" id="c-INDEX" role="img" aria-label="Total market index chart"></div>
+          </section>
+          <section class="card"><div class="ct"><b>Sectors</b><small id="sn"></small></div><div class="sg" id="sg"></div></section>
+        </div>
+        <div class="right" id="right"></div>
+      </main>
+      <footer class="tape" id="tape"></footer>
+    </div>`;
+        Object.keys(cache).forEach((k) => delete cache[k]);
+        rightMode = "";
+        tapeSig = "";
+        $("#out").onclick = () => {
+          sessionStorage.removeItem("gk");
+          KEY = "";
+          gate();
+        };
+        $("#themebtn").onclick = () => applyTheme(isDark() ? "light" : "dark");
+        $("#fsbtn").onclick = toggleFs;
+        $("#rc").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (!b) return;
+          span = +b.dataset.r;
+          $$("#rc button").forEach((x) => x.classList.toggle("on", x === b));
+          Object.values(charts).forEach((c) => c.setSpan(span));
+          paintSectors(true);
+        };
+        applyTheme();
+        tickClock();
+        clearInterval(tClock);
+        tClock = setInterval(tickClock, 1000);
+        load();
+        clearInterval(tLive);
+        tLive = setInterval(live, 1000);
+        clearInterval(tFull);
+        tFull = setInterval(slow, 2000);
+        wake();
+      }
+
+      function toggleFs() {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else if (document.documentElement.requestFullscreen)
+          document.documentElement.requestFullscreen().catch(() => {});
+      }
+      function tickClock() {
+        const el = $("#clk");
+        if (el)
+          el.textContent = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+        if (FULL) paintNews();
+      }
+      function wake() {
+        document.body.classList.remove("idle");
+        clearTimeout(idleT);
+        idleT = setTimeout(() => document.body.classList.add("idle"), 5000);
+      }
+      ["pointermove", "pointerdown", "keydown"].forEach((ev) =>
+        addEventListener(ev, wake),
+      );
+      addEventListener("keydown", (e) => {
+        if ((e.key === "f" || e.key === "F") && $("#fsbtn") && !/input/i.test(e.target.tagName))
+          toggleFs();
+      });
+      let rz;
+      addEventListener("resize", () => {
+        clearTimeout(rz);
+        rz = setTimeout(() => {
+          Object.keys(cache).forEach((k) => delete cache[k]);
+          paintAll();
+        }, 150);
+      });
+
+      const fsScale = () => {
+        const w = innerWidth;
+        return w >= 1800 ? 1.4 : w >= 1400 ? 1.2 : 1;
+      };
+
+      /* ---------- load and build ---------- */
+      async function load() {
+        try {
+          OV = await api("overview?realm=" + R);
+          $("#arenas").innerHTML = OV.realms
+            .map(
+              (r) =>
+                `<button data-a="${r.id}" class="${r.id === R ? "on" : ""}">${esc(r.name)}${r.open ? "" : " (closed)"}</button>`,
+            )
+            .join("");
+          $$("#arenas button").forEach(
+            (b) =>
+              (b.onclick = () => {
+                R = b.dataset.a;
+                sig = "";
+                load();
+              }),
+          );
+          const key = R + OV.sectors.map((s) => s.name).join();
+          if (key !== sig) {
+            sig = key;
+            await build();
+          }
+          await tryFull();
+          paintAll();
+        } catch (e) {
+          if (/key/i.test(e.message)) gate(e.message);
+        }
+      }
+
+      async function build() {
+        Object.values(charts).forEach((c) => c.destroy());
+        charts = {};
+        ser = {};
+        const ids = ["INDEX", ...OV.sectors.map((s) => s.name)];
+        await Promise.all(
+          ids.map(async (id) => {
+            ser[id] = { t: [], v: [] };
+            try {
+              const h = await api(
+                "history?realm=" + R + "&id=" + encodeURIComponent(id),
+              );
+              ser[id].t = h.t;
+              ser[id].v = h.v;
+            } catch (e) {}
+          }),
+        );
+        const ch = new Chart($("#c-INDEX"), {
+          source: ser.INDEX,
+          interactive: false,
+          fmt,
+          minSpan: 20,
+          fs: fsScale(),
+        });
+        ch.sid = "INDEX";
+        charts.INDEX = ch;
+        ch.setSpan(span);
+      }
+
+      async function slow() {
+        if (document.hidden || !OV) return;
+        if (!FULL) return;
+        try {
+          D = await fetchFull();
+          paintFull();
+        } catch (e) {
+          FULL = false;
+          D = null;
+          setRight();
+        }
+      }
+
+      async function live() {
+        if (document.hidden || !OV) return;
+        try {
+          const l = await api("live?realm=" + R);
+          if (l.n.join() !== OV.sectors.map((s) => s.name).join()) {
+            load();
+            return;
+          }
+          OV.open = l.open;
+          OV.paused = l.paused;
+          OV.ix = { v: l.ix[0], open: l.ix[1], high: l.ix[2], low: l.ix[3] };
+          OV.sectors.forEach((s) => {
+            const x = l.s[s.name];
+            if (x) {
+              s.v = x[0];
+              s.open = x[1];
+              s.high = x[2];
+              s.low = x[3];
+            }
+          });
+          const push = (id, v) => {
+            const s = ser[id];
+            if (!s) return;
+            const n = s.t.length;
+            if (n && l.t <= s.t[n - 1]) return;
+            if (l.open && !l.paused) {
+              s.t.push(l.t);
+              s.v.push(v);
+            }
+            if (n > 9000) {
+              s.t.splice(0, 1500);
+              s.v.splice(0, 1500);
+            }
+          };
+          push("INDEX", l.ix[0]);
+          OV.sectors.forEach((s) => push(s.name, s.v));
+          Object.values(charts).forEach((c) => c.appended());
+          paintAll();
+        } catch (e) {
+          if (/key/i.test(e.message)) gate(e.message);
+        }
+      }
+
+      /* ---------- painting ---------- */
+      function paintAll() {
+        if (!OV || !$("#iv")) return;
+        paintHead();
+        paintIndex();
+        paintSectors();
+        paintStrip();
+        if (FULL) paintFull();
+        else paintTape();
+      }
+
+      function paintHead() {
+        const realm = OV.realms.find((r) => r.id === R);
+        $("#arena").textContent = realm ? realm.name : "";
+        const st = $("#st"),
+          s = !OV.open
+            ? ["off", "Closed"]
+            : OV.paused
+              ? ["hold", "Trading paused"]
+              : ["live", "Live"];
+        st.className = "st " + s[0];
+        st.textContent = s[1];
+      }
+
+      function paintIndex() {
+        const x = OV.ix,
+          ch = x.open ? (x.v / x.open - 1) * 100 : 0;
+        $("#iv").innerHTML = `${fmt(x.v)}<span class="chg ${ch >= 0 ? "u" : "d"}">${pc(ch)}</span>`;
+        $("#im").innerHTML =
+          `<span>Open <b>${fmt(x.open)}</b></span><span>High <b>${fmt(x.high)}</b></span><span>Low <b>${fmt(x.low)}</b></span>`;
+        const c = charts.INDEX;
+        if (c) {
+          const o = x.open;
+          c.o.base = () => o;
+          c.lines = [
+            {
+              y: o,
+              color: Chart.colors().mut,
+              dash: [6, 4],
+              label: "Session open",
+            },
+          ];
+          c.draw();
+        }
+      }
+
+      function spark(id) {
+        const s = ser[id];
+        if (!s || s.t.length < 2) return "";
+        const t = s.t,
+          last = t[t.length - 1],
+          from = span ? last - span : t[0];
+        let i0 = 0,
+          hi = t.length;
+        while (i0 < hi) {
+          const m = (i0 + hi) >> 1;
+          if (t[m] < from) i0 = m + 1;
+          else hi = m;
+        }
+        if (i0 > 0) i0--;
+        const n = t.length - i0;
+        if (n < 2) return "";
+        const stride = Math.max(1, Math.floor(n / 90)),
+          pts = [];
+        for (let i = i0; i < t.length; i += stride) pts.push([t[i], s.v[i]]);
+        if (pts[pts.length - 1][0] !== last) pts.push([last, s.v[t.length - 1]]);
+        let mn = Infinity,
+          mx = -Infinity;
+        pts.forEach((p) => {
+          if (p[1] < mn) mn = p[1];
+          if (p[1] > mx) mx = p[1];
+        });
+        const r = mx - mn || 1,
+          t0 = pts[0][0],
+          tr = pts[pts.length - 1][0] - t0 || 1;
+        const xy = pts.map(
+          (p) =>
+            (((p[0] - t0) / tr) * 120).toFixed(1) +
+            "," +
+            (34 - ((p[1] - mn) / r) * 32).toFixed(1),
+        );
+        const up = pts[pts.length - 1][1] >= pts[0][1];
+        return `<svg class="sp ${up ? "u" : "d"}" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,36 ${xy.join(" ")} 120,36"/><polyline points="${xy.join(" ")}"/></svg>`;
+      }
+
+      function paintSectors(force) {
+        if (force) delete cache.sg;
+        $("#sn").textContent =
+          OV.sectors.length + (OV.sectors.length === 1 ? " sector" : " sectors");
+        setH(
+          "sg",
+          OV.sectors
+            .map((s) => {
+              const ch = s.open ? (s.v / s.open - 1) * 100 : 0;
+              const sub =
+                s.n != null
+                  ? `${s.adv} of ${s.n} up${s.cap ? ", " + compact(s.cap) : ""}`
+                  : "";
+              return `<div class="sc"><div class="sh"><b>${esc(s.name)}</b><span class="chg ${ch >= 0 ? "u" : "d"}">${pc(ch)}</span></div><div class="sv">${fmt(s.v)}</div>${spark(s.name)}<small>${sub}</small></div>`;
+            })
+            .join(""),
+        );
+      }
+
+      function paintStrip() {
+        let cap = 0,
+          adv = 0,
+          n = 0;
+        OV.sectors.forEach((s) => {
+          cap += s.cap || 0;
+          adv += s.adv || 0;
+          n += s.n || 0;
+        });
+        const dec = n - adv,
+          tiles = [];
+        if (cap)
+          tiles.push(`<div class="stat"><small>Total market cap</small><b>${compact(cap)}</b></div>`);
+        if (n)
+          tiles.push(
+            `<div class="stat"><small>Companies up and down</small><b>${adv} up, ${dec} down</b><div class="split"><i class="u" style="width:${(adv / n) * 100}%"></i><i class="d" style="width:${(dec / n) * 100}%"></i></div></div>`,
+          );
+        if (FULL && D)
+          tiles.push(
+            `<div class="stat"><small>Traders online</small><b>${D.online ?? 0} of ${D.playerCount ?? 0}</b></div>`,
+          );
+        tiles.push(
+          `<div class="stat"><small>Index high and low</small><b>${fmt(OV.ix.high)} / ${fmt(OV.ix.low)}</b></div>`,
+        );
+        setH("strip", tiles.join(""));
+      }
+
+      /* ---------- right column (needs the admin key) ---------- */
+      function setRight() {
+        const el = $("#right");
+        if (!el) return;
+        const mode = FULL ? "full" : "locked";
+        if (mode === rightMode) return;
+        rightMode = mode;
+        ["mv", "lb", "nl"].forEach((k) => delete cache[k]);
+        el.classList.toggle("locked-mode", mode === "locked");
+        if (mode === "full") {
+          el.innerHTML = `
+        <section class="card"><div class="ct"><b>Biggest movers</b><small>this session</small></div><div class="two" id="mv"></div></section>
+        <section class="card"><div class="ct"><b>Leaderboard</b><small>net worth</small></div><div class="lst" id="lb"></div></section>
+        <section class="card"><div class="ct"><b>Latest news</b><small>live</small></div><div class="lst" id="nl"></div></section>`;
+          if (OV) paintFull();
+        } else {
+          el.innerHTML = `<section class="card"><div class="ct"><b>Movers, leaderboard and news</b></div>
+        <div class="locked"><p>This display needs the admin key to show who is moving, who is winning and what the wire is saying. Enter it here, or leave it out for charts only.</p>
+        <div class="row"><input id="ak" type="password" placeholder="Admin key"><button class="btn" id="ab">Show</button></div><div class="dn" id="am"></div></div></section>`;
+          const go = async () => {
+            const prev = KEY;
+            KEY = $("#ak").value;
+            try {
+              D = await fetchFull();
+              FULL = true;
+              sessionStorage.setItem("gk", KEY);
+              setRight();
+            } catch (e) {
+              KEY = prev;
+              $("#am").textContent = "That key did not unlock the extra panels.";
+            }
+          };
+          $("#ab").onclick = go;
+          $("#ak").onkeydown = (e) => {
+            if (e.key === "Enter") go();
+          };
+          paintTape();
+        }
+      }
+
+      function fit(el) {
+        if (!el) return;
+        while (el.scrollHeight > el.clientHeight + 1 && el.children.length > 1)
+          el.lastElementChild.remove();
+      }
+
+      function paintFull() {
+        if (!FULL || !D) return;
+        paintStrip();
+        const cos = (D.companies || [])
+          .filter((c) => c.open)
+          .map((c) => ({ c, ch: (c.price / c.open - 1) * 100 }))
+          .sort((a, b) => b.ch - a.ch);
+        const row = ({ c, ch }) =>
+          `<div class="mr"><b>${esc(c.id)}</b><small>${esc(c.name)}, ${money(c.price)}</small><span class="chg ${ch >= 0 ? "u" : "d"}">${pc(ch)}</span></div>`;
+        const up = cos.slice(0, 5),
+          dn = cos.slice(-5).reverse();
+        if (
+          setH(
+            "mv",
+            `<div><h3>Gainers</h3><div class="lst" id="mvu">${up.map(row).join("")}</div></div><div><h3>Losers</h3><div class="lst" id="mvd">${dn.map(row).join("")}</div></div>`,
+          )
+        ) {
+          fit($("#mvu"));
+          fit($("#mvd"));
+        }
+
+        const pl = (D.players || [])
+          .filter((p) => !p.banned)
+          .sort((a, b) => b.worth - a.worth)
+          .slice(0, 10);
+        if (
+          setH(
+            "lb",
+            pl.length
+              ? pl
+                  .map((p, i) => {
+                    const g = (p.worth / START - 1) * 100;
+                    return `<div class="lr"><span class="rk ${i < 3 ? "r" + (i + 1) : ""}">${i + 1}</span><span class="av">${esc(p.avatar || "")}</span><b>${esc(p.name)}</b><span class="lw">${money0(p.worth)}</span><span class="chg ${g >= 0 ? "u" : "d"}">${pc(g)}</span></div>`;
+                  })
+                  .join("")
+              : '<div class="empty">No traders have joined yet.</div>',
+          )
+        )
+          fit($("#lb"));
+
+        paintNews();
+        paintTape();
+      }
+
+      function newsHtml(n) {
+        const imp = Number(n.impact) || 0,
+          cls = SENT(imp),
+          who =
+            n.tType === "market"
+              ? "Whole market"
+              : n.tType === "sector"
+                ? esc(n.tId || "")
+                : esc(n.tId || "");
+        let tag = '<span class="tag" style="background:var(--dn);color:#fff">Breaking</span>';
+        if (n.kind === "rumor") {
+          tag = '<span class="tag" style="background:var(--vio);color:#fff">Rumor</span>';
+          if (n.status === "confirmed")
+            tag += '<span class="tag" style="background:var(--up);color:#fff">Confirmed</span>';
+          else if (["debunked", "false", "denied"].includes(n.status))
+            tag += '<span class="tag" style="background:var(--well);color:var(--mut)">Debunked</span>';
+        } else if (n.kind === "update")
+          tag = '<span class="tag" style="background:var(--well);color:var(--mut)">Update</span>';
+        return `<article class="nw ${cls}"><div class="meta">${tag}<span class="chip">${who}</span><span>${ago(n.ts)}</span></div><h4>${esc(n.headline || "")}</h4></article>`;
+      }
+
+      function paintNews() {
+        if (!FULL || !D) return;
+        const l = (D.news || []).slice(0, 8);
+        if (
+          setH(
+            "nl",
+            l.length
+              ? l.map(newsHtml).join("")
+              : '<div class="empty">The wire is quiet for now.</div>',
+          )
+        )
+          fit($("#nl"));
+      }
+
+      function paintTape() {
+        const src =
+          FULL && D && D.companies && D.companies.length
+            ? D.companies.map((c) => [
+                c.id,
+                money(c.price),
+                c.open ? (c.price / c.open - 1) * 100 : 0,
+              ])
+            : OV.sectors.map((s) => [
+                s.name,
+                fmt(s.v),
+                s.open ? (s.v / s.open - 1) * 100 : 0,
+              ]);
+        const tape = $("#tape"),
+          sg = src.map((x) => x[0]).join("|");
+        if (!tape) return;
+        if (sg !== tapeSig) {
+          tapeSig = sg;
+          const one = src
+            .map(
+              (x) =>
+                `<span class="ti" data-k="${esc(x[0])}"><b>${esc(x[0])}</b><em class="p"></em><i class="c"></i></span>`,
+            )
+            .join("");
+          tape.innerHTML = `<div class="tk">${one}${one}</div>`;
+          tape.firstChild.style.animationDuration =
+            Math.max(25, src.length * 5) + "s";
+        }
+        src.forEach((x) =>
+          $$('.ti[data-k="' + CSS.escape(x[0]) + '"]', tape).forEach((el) => {
+            $(".p", el).textContent = x[1];
+            const c = $(".c", el);
+            c.textContent = pc(x[2]);
+            c.className = "c " + (x[2] >= 0 ? "u" : "d");
+          }),
+        );
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && OV) {
+          sig = "";
+          load();
+        }
+      });
+      (async function () {
+        applyTheme();
+        fetch("/api/meta")
+          .then((r) => r.json())
+          .then((m) => {
+            if (m && m.start) START = m.start;
+          })
+          .catch(() => {});
+        if (KEY) {
+          try {
+            await api("overview?realm=" + R);
+            start();
+            return;
+          } catch (e) {}
+        }
+        gate();
+      })();
+    </script>
+  </body>
+</html>

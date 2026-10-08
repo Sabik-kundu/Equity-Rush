@@ -1,0 +1,154 @@
+/* Equity Rush polish layer: loads after app.css */
+html {
+  background: var(--bg);
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(520px 380px at 8% -4%, color-mix(in srgb, var(--pri) 16%, transparent), transparent 70%),
+    radial-gradient(460px 340px at 100% 18%, color-mix(in srgb, var(--dn) 9%, transparent), transparent 70%),
+    radial-gradient(520px 420px at 0% 100%, color-mix(in srgb, var(--up) 9%, transparent), transparent 70%);
+}
+:focus-visible {
+  outline: 2px solid var(--pri);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+button {
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+button:active:not(:disabled) {
+  transform: scale(0.965);
+}
+button:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+/* sign-in hero */
+.auth .abrand {
+  position: relative;
+}
+.brand {
+  position: relative;
+  gap: 14px;
+}
+.brand .mark {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin-bottom: 2px;
+  filter: drop-shadow(0 12px 18px rgba(30, 38, 90, 0.28));
+  animation: eqfloat 6s ease-in-out infinite;
+}
+.brand .mark::before {
+  content: "";
+  position: absolute;
+  inset: -22%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--pri) 38%, transparent), transparent 66%);
+  filter: blur(10px);
+}
+.brand .kick {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pri);
+  background: var(--pri-l);
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: var(--clay-s);
+}
+.brand h1 {
+  margin: 0;
+  background: linear-gradient(100deg, var(--ink) 30%, var(--pri) 78%, var(--dn));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+@keyframes eqfloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.5deg);
+  }
+}
+.aform {
+  border: 1px solid var(--line);
+}
+.field:focus {
+  box-shadow: var(--inset), 0 0 0 2px color-mix(in srgb, var(--pri) 45%, transparent);
+}
+#go {
+  position: relative;
+  overflow: hidden;
+}
+#go::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: eqsheen 3.4s ease-in-out 1.2s infinite;
+}
+@keyframes eqsheen {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* view transitions inside the app */
+#main.vin > * {
+  animation: eqin 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+#main.vin .bento > *:nth-child(2) {
+  animation-delay: 0.04s;
+}
+#main.vin .bento > *:nth-child(3) {
+  animation-delay: 0.08s;
+}
+#main.vin .bento > *:nth-child(4) {
+  animation-delay: 0.12s;
+}
+@keyframes eqin {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+nav button.on em {
+  font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand .mark,
+  #go::after,
+  #main.vin > * {
+    animation: none !important;
+  }
+  button {
+    transition: none;
+  }
+}

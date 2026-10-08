@@ -1,0 +1,148 @@
+/* Equity Rush intro + loading screen */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #f1f4fb;
+  background: #0d1020;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  touch-action: none;
+}
+#splash .sp-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 50% 42%, rgba(120, 130, 255, 0.22), transparent 70%),
+    radial-gradient(40% 30% at 50% 100%, rgba(229, 62, 62, 0.16), transparent 70%),
+    #0d1020;
+}
+#splash .sp-grid {
+  position: absolute;
+  inset: -20%;
+  opacity: 0;
+  background-image:
+    linear-gradient(rgba(160, 174, 192, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(160, 174, 192, 0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 0, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 45%, #000 0, transparent 62%);
+}
+#splash .sp-core {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 0 24px;
+  text-align: center;
+}
+#splash .sp-logo {
+  position: relative;
+  width: min(54vw, 250px);
+  aspect-ratio: 1;
+  opacity: 0;
+}
+#splash .sp-glow {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 150, 255, 0.45), rgba(140, 150, 255, 0) 68%);
+  filter: blur(14px);
+  opacity: 0;
+}
+#splash .sp-logo svg {
+  position: relative;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.55));
+}
+#splash .sp-title {
+  margin: 0;
+  display: flex;
+  gap: 0.34em;
+  font-size: clamp(26px, 8vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+}
+#splash .sp-title .wd {
+  display: inline-flex;
+  overflow: hidden;
+  padding: 4px 0;
+}
+#splash .sp-title .ch {
+  display: inline-block;
+  opacity: 0;
+}
+#splash .sp-title .wd:last-child {
+  color: #ff6b6b;
+}
+#splash .sp-tag {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #9aa6c4;
+  opacity: 0;
+}
+#splash .sp-bar {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 44px);
+  width: min(52vw, 220px);
+  height: 3px;
+  margin-left: calc(min(52vw, 220px) / -2);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  opacity: 0;
+}
+#splash .sp-bar i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #7a7eff, #ff6b6b);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+#splash .sp-note {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8792b3;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#splash .sp-note.on {
+  opacity: 1;
+}
+#splash .sp-note button {
+  margin-left: 8px;
+  font: inherit;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+#splash.noscript-hide {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  #splash .sp-logo,
+  #splash .sp-title .ch,
+  #splash .sp-tag,
+  #splash .sp-bar {
+    opacity: 1;
+  }
+}

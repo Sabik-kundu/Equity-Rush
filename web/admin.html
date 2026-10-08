@@ -1,0 +1,1637 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#e8ecf5" />
+    <title>Equity Rush control room</title>
+    <script>
+      (function () {
+        var m = localStorage.getItem("br_theme") || "auto";
+        var d =
+          m === "dark" ||
+          (m === "auto" &&
+            window.matchMedia &&
+            matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = d ? "dark" : "light";
+      })();
+    </script>
+    <link rel="icon" href="/icon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/theme.css" />
+    <style>
+      input,
+      select,
+      textarea {
+        background: var(--well);
+        border: 0;
+        border-radius: 18px;
+        padding: 12px 15px;
+        width: 100%;
+        box-shadow: var(--inset);
+        color: var(--ink);
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        box-shadow:
+          var(--inset),
+          0 0 0 3px rgba(139, 143, 255, 0.5);
+      }
+      textarea {
+        resize: vertical;
+        min-height: 70px;
+      }
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--mut) 50%),
+          linear-gradient(135deg, var(--mut) 50%, transparent 50%);
+        background-position:
+          calc(100% - 20px) 50%,
+          calc(100% - 14px) 50%;
+        background-size: 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 36px;
+      }
+      button.btn {
+        display: inline-block;
+        width: auto;
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+      .btn.full {
+        display: block;
+        width: 100%;
+      }
+      .btn.ghost {
+        padding: 7px 12px;
+        border-radius: 13px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--mut);
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+      }
+      .btn.ghost:hover {
+        color: var(--pri);
+      }
+      .btn.ghost.warn {
+        color: var(--dn);
+      }
+      .gate {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+      .gate .box {
+        width: min(400px, 100%);
+        display: grid;
+        gap: 16px;
+        background: var(--sf);
+        box-shadow: var(--clay);
+        border-radius: 34px;
+        padding: 32px;
+      }
+      .gate h1 {
+        font-size: 38px;
+        letter-spacing: -0.04em;
+        font-weight: 900;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px 28px 6px;
+        flex-wrap: wrap;
+        max-width: 1300px;
+        margin: 0 auto;
+      }
+      .who {
+        font-weight: 700;
+        color: var(--pri);
+        background: var(--pri-l);
+        padding: 5px 12px;
+        border-radius: 999px;
+      }
+      .who:empty {
+        display: none;
+      }
+      header h1 {
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin-right: auto;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .tabs button {
+        padding: 10px 16px;
+        border-radius: 18px;
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+        color: var(--mut);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-weight: 700;
+      }
+      .tabs button.on {
+        box-shadow: var(--inset);
+        background: var(--pri-l);
+        color: var(--pri);
+      }
+      .tabs span {
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .tabs .pz {
+        background: var(--dn);
+        color: #fff;
+        border-radius: 8px;
+        padding: 1px 7px;
+      }
+      .themebtn {
+        width: 42px;
+        height: 42px;
+        border-radius: 15px;
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+        display: grid;
+        place-items: center;
+        color: var(--mut);
+      }
+      .wrap {
+        padding: 18px 28px 90px;
+        max-width: 1300px;
+        margin: 0 auto;
+      }
+      .g2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+        gap: 22px;
+        align-items: start;
+      }
+      @media (max-width: 700px) {
+        .wrap {
+          padding: 14px 12px 90px;
+        }
+        header {
+          padding: 14px 12px 4px;
+        }
+      }
+      .col {
+        display: grid;
+        gap: 22px;
+        min-width: 0;
+      }
+      .card {
+        background: var(--sf);
+        box-shadow: var(--clay);
+        border-radius: 30px;
+        padding: 22px;
+        min-width: 0;
+      }
+      .card h2 {
+        margin: 0 0 16px;
+        font-size: 18px;
+      }
+      .f {
+        display: grid;
+        gap: 7px;
+        margin-bottom: 14px;
+      }
+      .f > label {
+        font-size: 12px;
+        color: var(--mut);
+        font-weight: 600;
+      }
+      .r2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      input[type="range"] {
+        padding: 0;
+        height: 30px;
+        accent-color: var(--pri);
+        background: none;
+        box-shadow: none;
+      }
+      .imp {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .imp b {
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .presets {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .prev {
+        background: var(--well);
+        box-shadow: var(--inset);
+        border-radius: 22px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+      }
+      .prev h4 {
+        margin: 8px 0 4px;
+        font-size: 15px;
+      }
+      .prev .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .tbl th {
+        font-weight: 600;
+        color: var(--mut);
+        text-align: left;
+        font-size: 12px;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      .tbl td {
+        padding: 10px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+      .tbl tr:last-child td {
+        border-bottom: 0;
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      .acts {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .flags {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .stat {
+        background: var(--well);
+        box-shadow: var(--inset);
+        border-radius: 20px;
+        padding: 12px 18px;
+        min-width: 100px;
+      }
+      .stat b {
+        display: block;
+        font-size: 20px;
+      }
+      .mood {
+        display: inline-block;
+        width: 64px;
+        height: 9px;
+        background: var(--well);
+        box-shadow: var(--inset);
+        border-radius: 6px;
+        overflow: hidden;
+        vertical-align: middle;
+      }
+      .mood i {
+        display: block;
+        height: 100%;
+      }
+      .log {
+        display: grid;
+        gap: 10px;
+        max-height: 420px;
+        overflow: auto;
+        padding: 4px;
+      }
+      .log .it {
+        padding: 12px 14px;
+        border-radius: 20px;
+        background: var(--well);
+        box-shadow: var(--inset);
+        display: grid;
+        gap: 4px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--sf);
+        box-shadow: var(--clay);
+        color: var(--ink);
+        padding: 13px 22px;
+        border-radius: 20px;
+        font-weight: 700;
+        z-index: 9;
+      }
+      .toast.err {
+        background: var(--dn);
+        color: #fff;
+      }
+      .note {
+        font-size: 12px;
+        color: var(--mut);
+        margin-top: -4px;
+        margin-bottom: 12px;
+      }
+      .cardhead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .cardhead h2 {
+        margin: 0;
+      }
+      .limcell {
+        white-space: nowrap;
+      }
+      .limcell small {
+        display: block;
+      }
+
+      .arenas {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .arenas button {
+        padding: 8px 14px;
+        border-radius: 16px;
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+        color: var(--mut);
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .arenas button.on {
+        box-shadow: var(--inset);
+        background: var(--pri-l);
+        color: var(--pri);
+      }
+      .arenas .pz {
+        background: var(--dn);
+        color: #fff;
+        border-radius: 8px;
+        padding: 1px 7px;
+        font-size: 10px;
+        margin-left: 6px;
+      }
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--bg);
+        padding: 10px 28px;
+        max-width: 1300px;
+        margin: 0 auto;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav button {
+        flex: none;
+        padding: 10px 16px;
+        border-radius: 18px;
+        background: var(--sf);
+        box-shadow: var(--clay-s);
+        color: var(--mut);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .nav button.on {
+        box-shadow: var(--inset);
+        background: var(--pri-l);
+        color: var(--pri);
+      }
+      @media (max-width: 700px) {
+        .nav {
+          padding: 8px 12px;
+        }
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: var(--scrim);
+        z-index: 50;
+        display: grid;
+        place-items: center;
+        padding: 14px;
+        overflow: auto;
+      }
+      .modal .card {
+        width: min(640px, 100%);
+        max-height: 94vh;
+        overflow: auto;
+      }
+      .sect {
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        margin-top: 14px;
+      }
+      .sect h3 {
+        margin: 0 0 10px;
+        font-size: 14px;
+      }
+      .inl {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .inl input {
+        flex: 1;
+        min-width: 90px;
+      }
+      .arena {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .pill2 {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 12px;
+      }
+      .pill2.o {
+        background: var(--up-l);
+        color: var(--up);
+      }
+      .pill2.c {
+        background: var(--dn-l);
+        color: var(--dn);
+      }
+      .chat .it {
+        display: flex;
+        gap: 8px;
+      }
+      .bar3 {
+        height: 8px;
+        border-radius: 6px;
+        background: var(--well);
+        box-shadow: var(--inset);
+        overflow: hidden;
+        min-width: 70px;
+      }
+      .bar3 i {
+        display: block;
+        height: 100%;
+        background: var(--up);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/icons.js"></script>
+    <script>
+      "use strict";
+      const $ = (s, r = document) => r.querySelector(s);
+      const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+      const root = $("#root");
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const money = (n) =>
+        "Ꞩ" +
+        Number(n).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      const compact = (n) =>
+        n >= 1e12
+          ? "Ꞩ" + (n / 1e12).toFixed(2) + "T"
+          : n >= 1e9
+            ? "Ꞩ" + (n / 1e9).toFixed(1) + "B"
+            : "Ꞩ" + (n / 1e6).toFixed(0) + "M";
+      const PRESETS = [
+        [
+          "Earnings beat",
+          8,
+          "%c smashes quarterly earnings estimates",
+          "Revenue and margins came in well above forecasts.",
+        ],
+        [
+          "Mega contract",
+          10,
+          "%c wins a landmark multi-year contract",
+          "Analysts call it a game changer for the next five years.",
+        ],
+        [
+          "Product launch",
+          4,
+          "%c unveils its most ambitious product yet",
+          "Pre-orders are already crashing the website.",
+        ],
+        [
+          "Small upgrade",
+          2,
+          "Analysts nudge their rating on %c higher",
+          "A modest vote of confidence.",
+        ],
+        [
+          "Routine update",
+          0,
+          "%c publishes its regular business update",
+          "Nothing unexpected in the numbers.",
+        ],
+        [
+          "Minor setback",
+          -3,
+          "%c reports a delay in its next release",
+          "Management says it is a small fix.",
+        ],
+        [
+          "Recall",
+          -9,
+          "%c announces a major product recall",
+          "Regulators are watching closely.",
+        ],
+        [
+          "Probe",
+          -12,
+          "Regulators open a formal investigation into %c",
+          "Shares are sliding as executives decline to comment.",
+        ],
+      ];
+      const VOLS = [
+        ["Low", 0.0018],
+        ["Medium", 0.003],
+        ["High", 0.0045],
+        ["Extreme", 0.006],
+      ];
+      const SENT = (n) => {
+        const a = Math.abs(n),
+          l = a < 1 ? 0 : a < 5 ? 1 : 2;
+        return n < 0
+          ? [
+              ["s0", "Neutral"],
+              ["sn1", "Mild negative"],
+              ["sn2", "Very negative"],
+            ][l]
+          : [
+              ["s0", "Neutral"],
+              ["s1", "Mild positive"],
+              ["s2", "Very positive"],
+            ][l];
+      };
+
+      let KEY = sessionStorage.getItem("adm") || "",
+        R = "alpha",
+        D = null,
+        OV = null,
+        timer,
+        TAB = (location.hash || "#overview").slice(1),
+        CO = null,
+        SK = 0;
+      const F = {
+        kind: "news",
+        tType: "company",
+        tId: "",
+        impact: 8,
+        cred: 60,
+        headline: "",
+        body: "",
+        scope: "one",
+      };
+      const N = {
+        id: "",
+        name: "",
+        sector: "",
+        price: 25,
+        sharesM: 500,
+        vol: 0.003,
+        ceo: "",
+        tagline: "",
+        scope: "one",
+        flt: "",
+      };
+      const TABS = [
+        ["overview", "home", "Overview", ""],
+        ["news", "news", "News", "companies,news"],
+        ["companies", "market", "Companies", "companies"],
+        ["listings", "plus", "Listings", "companies"],
+        ["players", "user", "Players", "players"],
+        ["chat", "chat", "Chat", "chat"],
+        ["arenas", "flag", "Arenas", ""],
+        ["access", "shield", "Access", ""],
+      ];
+      const num = (n) => Number(n).toLocaleString("en-US");
+      const clock = (ms) => {
+        const s = Math.max(0, Math.ceil(ms / 1000)),
+          h = (s / 3600) | 0,
+          m = ((s % 3600) / 60) | 0,
+          p2 = (n) => String(n).padStart(2, "0");
+        return (h ? h + ":" + p2(m) : m) + ":" + p2(s % 60);
+      };
+
+      const themeMode = () => localStorage.getItem("br_theme") || "auto";
+      const isDark = () => {
+        const m = themeMode();
+        return (
+          m === "dark" ||
+          (m === "auto" && matchMedia("(prefers-color-scheme: dark)").matches)
+        );
+      };
+      function applyTheme(mode) {
+        if (mode) localStorage.setItem("br_theme", mode);
+        document.documentElement.dataset.theme = isDark() ? "dark" : "light";
+        const b = $("#themebtn");
+        if (b) b.innerHTML = ic(isDark() ? "sun" : "moon");
+      }
+
+      async function api(path, body) {
+        const r = await fetch("/api/admin/" + path, {
+          method: body ? "POST" : "GET",
+          headers: { "Content-Type": "application/json", "X-Admin": KEY },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || "Request failed");
+        return j;
+      }
+
+      function toast(msg, err) {
+        const t = document.createElement("div");
+        t.className = "toast" + (err ? " err" : "");
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2600);
+      }
+
+      let WHO = "";
+
+      function gate(msg = "") {
+        clearInterval(timer);
+        root.innerHTML = `<div class="gate"><div class="box"><h1>Control room</h1><small>Type your personal admin access code to run the market. You can find it on your admin sheet.</small>
+    <input id="key" type="password" placeholder="Access code" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus><button class="btn full" id="in">Unlock</button><div class="dn" id="msg">${esc(msg)}</div></div></div>`;
+        const go = async () => {
+          KEY = $("#key").value;
+          try {
+            const o = await api("overview?realm=" + R);
+            WHO = o.admin || "";
+            sessionStorage.setItem("adm", KEY);
+            start();
+          } catch (e) {
+            $("#msg").textContent = e.message;
+          }
+        };
+        $("#in").onclick = go;
+        $("#key").onkeydown = (e) => {
+          if (e.key === "Enter") go();
+        };
+      }
+
+      function start() {
+        root.innerHTML = `<header><h1>Equity Rush control room</h1><small id="who" class="who"></small><div class="arenas" id="arenas"></div>
+    <button class="themebtn" id="themebtn" aria-label="Toggle dark mode"></button><button class="btn ghost" id="out">Lock</button></header>
+    <div class="nav" id="nav">${TABS.map((t) => `<button data-t="${t[0]}">${ic(t[1])}<span>${t[2]}</span></button>`).join("")}</div>
+    <div class="wrap" id="view"></div>`;
+        $("#out").onclick = () => {
+          sessionStorage.removeItem("adm");
+          KEY = "";
+          gate();
+        };
+        $("#themebtn").onclick = () => applyTheme(isDark() ? "light" : "dark");
+        $("#nav").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (b) setTab(b.dataset.t);
+        };
+        window.onhashchange = () => {
+          const t = location.hash.slice(1);
+          if (t && t !== TAB && TABS.some((x) => x[0] === t)) setTab(t);
+        };
+        applyTheme();
+        setTab(TABS.some((x) => x[0] === TAB) ? TAB : "overview");
+        clearInterval(timer);
+        timer = setInterval(poll, 2000);
+      }
+
+      function setTab(t) {
+        TAB = t;
+        location.hash = t;
+        $$("#nav button").forEach((b) =>
+          b.classList.toggle("on", b.dataset.t === t),
+        );
+        $("#view").innerHTML = "";
+        $("#view").dataset.built = "";
+        CO = null;
+        closeModal();
+        poll();
+      }
+
+      async function poll() {
+        const sec =
+          TABS.find((t) => t[0] === TAB)[3] +
+          (TAB === "overview" ? "companies,news" : "");
+        try {
+          OV = await api("overview?realm=" + R + "&sections=" + sec);
+          D = OV.realm;
+          if (OV.admin) {
+            WHO = OV.admin;
+            const w = $("#who");
+            if (w) w.textContent = "Signed in as " + WHO;
+          }
+          SK = OV.now ? OV.now - Date.now() : 0;
+          paintArenaBar();
+          if (!$("#view").dataset.built) {
+            $("#view").dataset.built = 1;
+            BUILD[TAB]();
+          }
+          PAINT[TAB]();
+          if (CO) paintModal();
+        } catch (e) {
+          if (/key|code/i.test(e.message)) gate(e.message);
+        }
+      }
+
+      function paintArenaBar() {
+        const h = OV.realms
+          .map(
+            (r) =>
+              `<button data-r="${r.id}" class="${r.id === R ? "on" : ""}">${esc(r.name)}${!r.open ? '<span class="pz">closed</span>' : r.paused ? '<span class="pz">paused</span>' : ""}</button>`,
+          )
+          .join("");
+        if ($("#arenas")._h !== h) {
+          $("#arenas")._h = h;
+          $("#arenas").innerHTML = h;
+          $$("#arenas button").forEach(
+            (b) =>
+              (b.onclick = () => {
+                R = b.dataset.r;
+                $("#view").dataset.built = "";
+                poll();
+              }),
+          );
+        }
+      }
+
+      const setH = (el, h) => {
+        if (el && el._h !== h) {
+          el._h = h;
+          el.innerHTML = h;
+        }
+      };
+      async function act(path, body, ok) {
+        try {
+          await api(path, body);
+          if (ok) toast(ok);
+          poll();
+        } catch (e) {
+          toast(e.message, true);
+        }
+      }
+
+      /* ---------- overview ---------- */
+      function buildOverview() {
+        $("#view").innerHTML =
+          `<div class="g2"><div class="col"><section class="card"><h2>Server controls</h2><div class="flags" id="fl"></div>
+      <div class="r2" style="margin-bottom:12px"><button class="btn" id="pz"></button><button class="btn" id="au"></button></div>
+      <div class="f"><div class="imp"><label>Volatility</label><b id="vl" style="font-size:18px"></b></div><input type="range" id="vm" min="0.2" max="3" step="0.1"></div>
+      <div class="r2"><button class="btn ghost" id="ns">Start a new session</button><button class="btn ghost" id="cc">Clear chat</button></div>
+      <div class="f" style="margin-top:14px"><label>Announce on the trading floor</label><div class="inl"><input id="an" maxlength="120" placeholder="Server maintenance in 5 minutes"><button class="btn" id="ab">Send</button></div></div></section>
+    <section class="card" id="regcard"><h2>Joining window</h2>
+      <p class="note">After the deadline nobody new can create an account on this server. Players who already have an account can still sign in.</p>
+      <div class="flags" id="regst"></div>
+      <div class="f"><label>Close joining in</label><div class="presets" id="rgp">${[5, 10, 15, 30, 60].map((m) => `<button class="btn ghost" data-m="${m}">${m} min</button>`).join("")}</div></div>
+      <div class="f"><label>Or pick your own</label><div class="inl"><input id="rgm" type="number" min="1" step="1" placeholder="Minutes from now"><button class="btn" id="rgs">Set deadline</button></div></div>
+      <div class="acts"><button class="btn ghost warn" id="rgc">Close joining now</button><button class="btn ghost" id="rgo">Reopen, no time limit</button></div>
+      <div class="note" id="rgn" style="margin:12px 0 0"></div></section></div>
+    <div class="col"><section class="card"><h2>Top movers</h2><div id="mv"></div></section><section class="card"><h2>Latest news</h2><div class="log" id="nlog"></div></section></div></div>`;
+        $("#pz").onclick = () => act("realm", { realm: R, paused: !D.paused });
+        $("#au").onclick = () => act("realm", { realm: R, auto: !D.auto });
+        $("#vm").onchange = (e) =>
+          act("realm", { realm: R, volMul: +e.target.value });
+        $("#vm").oninput = (e) => {
+          $("#vl").textContent = e.target.value + "x";
+        };
+        $("#ns").onclick = () =>
+          act("realm", { realm: R, action: "session" }, "New session started");
+        $("#cc").onclick = () =>
+          act("realm", { realm: R, action: "clearChat" }, "Chat cleared");
+        $("#ab").onclick = async () => {
+          const v = $("#an").value.trim();
+          if (!v) return;
+          await act(
+            "realm",
+            { realm: R, action: "announce", text: v },
+            "Announced",
+          );
+          $("#an").value = "";
+        };
+        const reg = (body, ok) =>
+          act("realm", Object.assign({ realm: R }, body), ok);
+        $$("#rgp button").forEach(
+          (b) =>
+            (b.onclick = () =>
+              reg(
+                { regMinutes: +b.dataset.m },
+                "Joining closes in " + b.dataset.m + " min",
+              )),
+        );
+        $("#rgs").onclick = () => {
+          const m = Math.floor(+$("#rgm").value);
+          if (m > 0) {
+            reg({ regMinutes: m }, "Joining closes in " + m + " min");
+            $("#rgm").value = "";
+          } else toast("Enter a number of minutes", true);
+        };
+        $("#rgc").onclick = () => {
+          if (
+            confirm(
+              "Close joining now? Nobody new will be able to create an account on this server.",
+            )
+          )
+            reg({ regOpen: false }, "Joining closed");
+        };
+        $("#rgo").onclick = () =>
+          reg({ regOpen: true, regMinutes: 0 }, "Joining reopened, no time limit");
+      }
+      function regInfo() {
+        const r = (OV.realms || []).find((x) => x.id === R) || {};
+        const g = (k) => (D && D[k] !== undefined ? D[k] : r[k]);
+        const closesAt = Number(g("regClosesAt")) || 0,
+          left = closesAt - (Date.now() + SK);
+        return {
+          known: g("regOpen") !== undefined || g("regClosesAt") !== undefined,
+          open: g("regOpen") !== false && !(closesAt && left <= 0),
+          closesAt,
+          left,
+        };
+      }
+      function paintReg() {
+        const el = $("#regst");
+        if (!el) return;
+        const g = regInfo();
+        const status = !g.known
+            ? "Not reported"
+            : !g.open
+              ? "Closed"
+              : g.closesAt
+                ? "Open"
+                : "Open, no limit",
+          t = g.known && g.open && g.closesAt ? clock(g.left) : "None";
+        setH(
+          el,
+          `<div class="stat"><small>Joining</small><b>${status}</b></div><div class="stat"><small>Closes in</small><b>${t}</b></div>`,
+        );
+        setH(
+          $("#rgn"),
+          g.known
+            ? ""
+            : "This server has not reported its joining settings, so these buttons will not take effect until the server supports a joining window.",
+        );
+      }
+      function paintOverview() {
+        setH(
+          $("#fl"),
+          [
+            ["Players", D.playerCount],
+            ["Online", D.online],
+            ["Index", D.index.toFixed(2)],
+            ["Status", !D.open ? "Closed" : D.paused ? "Paused" : "Live"],
+          ]
+            .map(
+              (s) =>
+                `<div class="stat"><small>${s[0]}</small><b>${s[1]}</b></div>`,
+            )
+            .join(""),
+        );
+        $("#pz").className = "btn " + (D.paused ? "up" : "dn");
+        $("#pz").textContent = D.paused ? "Resume trading" : "Pause trading";
+        $("#au").className = "btn " + (D.auto ? "" : "soft");
+        $("#au").textContent = D.auto ? "Auto news: on" : "Auto news: off";
+        const vm = $("#vm");
+        if (document.activeElement !== vm) {
+          vm.value = D.volMul;
+          $("#vl").textContent = D.volMul.toFixed(1) + "x";
+        }
+        const a = D.companies
+          .map((c) => [c, (c.price / c.open - 1) * 100])
+          .sort((x, y) => y[1] - x[1]);
+        const row = ([c, ch]) =>
+          `<div class="arena" style="padding:6px 0"><b>${esc(c.id)}</b><small>${esc(c.name)}</small><span class="${ch >= 0 ? "up" : "dn"}">${(ch >= 0 ? "+" : "") + ch.toFixed(2)}%</span></div>`;
+        setH(
+          $("#mv"),
+          a.slice(0, 4).map(row).join("") +
+            '<hr style="border:0;border-top:1px solid var(--line)">' +
+            a.slice(-4).reverse().map(row).join(""),
+        );
+        paintReg();
+        paintLog();
+      }
+
+      /* ---------- news ---------- */
+      function buildNews() {
+        $("#view").innerHTML =
+          `<div class="g2"><section class="card" id="pub"></section><section class="card"><h2>News log</h2><div class="log" id="nlog" style="max-height:none"></div></section></div>`;
+        buildForm();
+      }
+      function paintNews() {
+        syncTargets();
+        paintLog();
+      }
+
+      function buildForm() {
+        $("#pub").innerHTML = `<h2>Publish news</h2>
+    <div class="f"><div class="seg" id="fk"><button data-k="news">News</button><button data-k="rumor">Rumor</button></div></div>
+    <div class="f"><label>Affects</label><div class="seg" id="ft"><button data-t="company">Company</button><button data-t="sector">Sector</button><button data-t="market">Whole market</button></div></div>
+    <div class="f" id="fidw"><select id="fid"></select></div>
+    <div class="f"><div class="imp"><label>Market impact</label><b id="fil"></b></div><input type="range" id="fi" min="-30" max="30" step="1">
+      <small>Prices move gradually over about 4 to 6 seconds with some randomness, not all at once.</small></div>
+    <div class="f" id="fcw"><div class="imp"><label>Chance the rumor is true</label><b id="fcl" style="font-size:18px"></b></div><input type="range" id="fc" min="0" max="100" step="5"></div>
+    <div class="f"><label>Quick templates</label><div class="presets" id="pre">${PRESETS.map((p, i) => `<button class="btn ghost" data-p="${i}">${p[0]}</button>`).join("")}</div></div>
+    <div class="f"><label>Headline</label><input id="fh" maxlength="140" placeholder="What just happened?"></div>
+    <div class="f"><label>Details (optional)</label><textarea id="fb" maxlength="400"></textarea></div>
+    <div class="f"><label>Publish to</label><div class="seg" id="fs"><button data-s="one">This server</button><button data-s="all">All servers</button></div></div>
+    <div class="prev" id="prev"></div><button class="btn full" id="send">Publish now</button>`;
+        $("#fk").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (b) {
+            F.kind = b.dataset.k;
+            syncForm();
+          }
+        };
+        $("#ft").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (b) {
+            F.tType = b.dataset.t;
+            F.tId = "";
+            syncTargets(true);
+            syncForm();
+          }
+        };
+        $("#fs").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (b) {
+            F.scope = b.dataset.s;
+            syncForm();
+          }
+        };
+        $("#fid").onchange = (e) => {
+          F.tId = e.target.value;
+          syncForm();
+        };
+        $("#fi").oninput = (e) => {
+          F.impact = +e.target.value;
+          syncForm();
+        };
+        $("#fc").oninput = (e) => {
+          F.cred = +e.target.value;
+          syncForm();
+        };
+        $("#fh").oninput = (e) => {
+          F.headline = e.target.value;
+          syncForm();
+        };
+        $("#fb").oninput = (e) => {
+          F.body = e.target.value;
+          syncForm();
+        };
+        $("#fh").value = F.headline;
+        $("#fb").value = F.body;
+        $("#pre").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (!b) return;
+          const p = PRESETS[+b.dataset.p],
+            c = D && D.companies.find((x) => x.id === F.tId);
+          F.impact = p[1];
+          F.headline = p[2].replace(
+            "%c",
+            F.tType === "company" && c
+              ? c.name
+              : F.tType === "sector"
+                ? F.tId + " companies"
+                : "Major companies",
+          );
+          F.body = p[3];
+          $("#fh").value = F.headline;
+          $("#fb").value = F.body;
+          syncForm();
+        };
+        $("#send").onclick = publish;
+        syncForm();
+      }
+      function syncTargets(force) {
+        const sel = $("#fid");
+        if (!sel || !D || !D.companies) return;
+        $("#fidw").style.display = F.tType === "market" ? "none" : "grid";
+        const opts =
+          F.tType === "company"
+            ? D.companies.map((c) => [c.id, `${c.name} (${c.id})`])
+            : D.sectors.map((s) => [s, s]);
+        const key = F.tType + opts.map((o) => o[0]).join();
+        if (force || sel.dataset.key !== key) {
+          sel.innerHTML = opts
+            .map((o) => `<option value="${esc(o[0])}">${esc(o[1])}</option>`)
+            .join("");
+          sel.dataset.key = key;
+          if (!opts.some((o) => o[0] === F.tId))
+            F.tId = opts.length ? opts[0][0] : "";
+          sel.value = F.tId;
+          syncForm();
+        }
+      }
+      function syncForm() {
+        $$("#fk button").forEach((b) =>
+          b.classList.toggle("on", b.dataset.k === F.kind),
+        );
+        $$("#ft button").forEach((b) =>
+          b.classList.toggle("on", b.dataset.t === F.tType),
+        );
+        $$("#fs button").forEach((b) =>
+          b.classList.toggle("on", b.dataset.s === F.scope),
+        );
+        $("#fcw").style.display = F.kind === "rumor" ? "grid" : "none";
+        const i = $("#fi");
+        if (document.activeElement !== i) i.value = F.impact;
+        const c = $("#fc");
+        if (document.activeElement !== c) c.value = F.cred;
+        const s = SENT(F.impact),
+          l = $("#fil");
+        l.textContent = (F.impact > 0 ? "+" : "") + F.impact + "%";
+        l.className = F.impact > 0 ? "up" : F.impact < 0 ? "dn" : "";
+        $("#fcl").textContent = F.cred + "%";
+        const co = D && D.companies && D.companies.find((x) => x.id === F.tId);
+        const who =
+          F.tType === "company"
+            ? co
+              ? co.id
+              : ""
+            : F.tType === "sector"
+              ? F.tId
+              : "Whole market";
+        $("#prev").innerHTML =
+          `<div class="row"><span class="tag ${F.kind === "rumor" ? "r" : "n"}">${F.kind === "rumor" ? "Rumor" : "Breaking"}</span><span class="sent ${s[0]}">${s[1]}</span><small>${esc(who)}</small></div><h4>${esc(F.headline || "Your headline appears here")}</h4><small>${esc(F.body)}</small>`;
+      }
+      async function publish() {
+        const btn = $("#send");
+        btn.disabled = true;
+        try {
+          await api("news", {
+            realm: F.scope === "all" ? "all" : R,
+            kind: F.kind,
+            tType: F.tType,
+            tId: F.tType === "market" ? "" : F.tId,
+            headline: F.headline,
+            body: F.body,
+            impact: F.impact,
+            cred: F.kind === "rumor" ? F.cred / 100 : 1,
+          });
+          toast("Published");
+          F.headline = "";
+          F.body = "";
+          $("#fh").value = "";
+          $("#fb").value = "";
+          syncForm();
+          poll();
+        } catch (e) {
+          toast(e.message, true);
+        }
+        btn.disabled = false;
+      }
+      function paintLog() {
+        if (!D.news) return;
+        setH(
+          $("#nlog"),
+          D.news.length
+            ? D.news
+                .map((n) => {
+                  const imp = Number(n.impact) || 0,
+                    s = SENT(imp);
+                  return `<div class="it"><small>${new Date(n.ts).toLocaleTimeString()}, ${esc(n.kind || "news")}${n.status ? " (" + esc(n.status) + ")" : ""}, ${n.tType === "market" ? "whole market" : esc(n.tId || "")}, ${imp >= 0 ? "+" : ""}${imp.toFixed(1)}%${n.kind === "rumor" ? ", " + Math.round((Number(n.cred) || 0) * 100) + "% true" : ""}</small><div class="row" style="display:flex;gap:8px;align-items:center"><span class="sent ${s[0]}">${s[1]}</span><b>${esc(n.headline)}</b></div></div>`;
+                })
+                .join("")
+            : "<small>Nothing published yet.</small>",
+        );
+      }
+
+      /* ---------- companies ---------- */
+      function buildCompanies() {
+        $("#view").innerHTML =
+          `<section class="card"><div class="cardhead"><h2>Companies, supply and price limits</h2><div class="acts"><button class="btn ghost" id="shAll">Show all limits</button><button class="btn ghost" id="hdAll">Hide all limits</button></div></div>
+    <p class="note">Each stock has a limited float of shares players can hold. Open Manage for a company to change its supply, set a price trend, replace its CEO, or adjust its limits.</p><div class="scroll" id="cos"></div></section>`;
+        $("#shAll").onclick = () =>
+          act("realm", { realm: R, showLimits: true });
+        $("#hdAll").onclick = () =>
+          act("realm", { realm: R, showLimits: false });
+      }
+      function paintCompanies() {
+        setH(
+          $("#cos"),
+          `<table class="tbl"><tr><th>Company</th><th>Price</th><th>Session</th><th>Supply</th><th>Limit</th><th>CEO</th><th></th></tr>${D.companies
+            .map((c) => {
+              const ch = (c.price / c.open - 1) * 100,
+                used = c.float ? ((c.held + c.flood) / c.float) * 100 : 0;
+              return `<tr><td><b>${esc(c.id)}</b> <small>${esc(c.sector)}</small><br><small>${esc(c.name)}</small></td><td>${money(c.price)}</td><td class="${ch >= 0 ? "up" : "dn"}">${(ch >= 0 ? "+" : "") + ch.toFixed(2)}%${c.trendLeft ? '<br><span class="chip">trend ' + (c.trendPct >= 0 ? "+" : "") + c.trendPct.toFixed(1) + "%</span>" : ""}</td>
+    <td><div class="bar3"><i style="width:${Math.min(100, used)}%;background:${c.avail === 0 ? "var(--dn)" : "var(--up)"}"></i></div><small>${num(c.avail)} of ${num(c.float)} free${c.flood ? ", " + num(c.flood) + " releasing" : ""}</small></td>
+    <td class="limcell"><b>${c.band.toFixed(1)}%</b> ${c.override ? '<span class="chip">custom</span>' : ""}${c.hit > 0 ? '<span class="tag g">Upper</span>' : c.hit < 0 ? '<span class="tag n">Lower</span>' : ""}</td>
+    <td><small>${esc(c.ceo)}</small></td><td><button class="btn ghost" data-mg="${esc(c.id)}">Manage</button></td></tr>`;
+            })
+            .join("")}</table>`,
+        );
+        $$("[data-mg]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              CO = b.dataset.mg;
+              openModal();
+            }),
+        );
+      }
+      function openModal() {
+        closeModal();
+        const m = document.createElement("div");
+        m.className = "modal";
+        m.id = "modal";
+        m.onclick = (e) => {
+          if (e.target === m) {
+            CO = null;
+            closeModal();
+          }
+        };
+        m.innerHTML = '<div class="card" id="mbody"></div>';
+        document.body.appendChild(m);
+        const c = D.companies.find((x) => x.id === CO);
+        if (!c) return;
+        $("#mbody").innerHTML =
+          `<div class="cardhead"><h2>${esc(c.name)} <small>${esc(c.id)}</small></h2><button class="btn ghost" id="mx">Close</button></div><div id="mstat"></div>
+    <div class="sect"><h3>Price</h3><div class="acts" style="margin-bottom:8px">${[-10, -5, -3, 3, 5, 10].map((v) => `<button class="btn ghost" data-sh="${v}">${v > 0 ? "+" : ""}${v}%</button>`).join("")}</div>
+      <div class="inl"><input id="mp" type="number" min="1" placeholder="New price"><button class="btn ghost" id="mps">Set price</button></div><small class="note">Shocks play out over a few seconds. Set price also cancels any pending trend and reopens the session.</small></div>
+    <div class="sect"><h3>Trend (a slow gain or loss)</h3><div class="inl"><input id="tp" type="number" step="1" placeholder="Total % e.g. -12"><input id="tm" type="number" step="1" min="1" placeholder="Minutes e.g. 10"><button class="btn ghost" id="ts">Start</button><button class="btn ghost warn" id="tx">Stop</button></div>
+      <small class="note">The price keeps drifting toward this target while players' buying and selling push against it, so the result is a real tug of war.</small></div>
+    <div class="sect"><h3>Share supply</h3><div class="inl"><input id="fl" type="number" min="100" step="50" placeholder="Float"><button class="btn ghost" id="fls">Set float</button></div><small class="note">Total shares players can own in this arena. Shares from banned players return to the market slowly.</small></div>
+    <div class="sect"><h3>CEO</h3><div class="inl"><input id="cn" maxlength="30" placeholder="Successor name (blank for a random one)"><button class="btn ghost warn" id="cr">CEO resigns</button></div></div>
+    <div class="sect"><h3>Price limit</h3><div class="inl"><input id="bd" type="number" step="0.5" placeholder="% each way (0 = auto ${c.auto}%)"><button class="btn ghost" id="bds">Set limit</button><button class="btn ghost" id="sl"></button></div></div>
+    <div class="sect"><button class="btn ghost warn" id="dl">Delist ${esc(c.id)}</button></div>`;
+        const P = (action, extra, ok) =>
+          act(
+            "company",
+            Object.assign({ realm: R, id: CO, action }, extra),
+            ok,
+          );
+        $("#mx").onclick = () => {
+          CO = null;
+          closeModal();
+        };
+        $$("[data-sh]").forEach(
+          (b) =>
+            (b.onclick = () =>
+              P("shock", { value: +b.dataset.sh }, "Shock applied")),
+        );
+        $("#mps").onclick = () => {
+          const v = +$("#mp").value;
+          if (v > 0) P("setPrice", { value: v }, "Price set");
+        };
+        $("#ts").onclick = () => {
+          const p = +$("#tp").value,
+            mm = +$("#tm").value;
+          if (p && mm) P("trend", { value: p, minutes: mm }, "Trend started");
+          else toast("Enter a percent and minutes", true);
+        };
+        $("#tx").onclick = () => P("trendStop", {}, "Trend stopped");
+        $("#fls").onclick = () => {
+          const v = +$("#fl").value;
+          if (v) P("float", { value: v }, "Float updated");
+        };
+        $("#cr").onclick = () => {
+          if (confirm("Make the CEO of " + CO + " resign?"))
+            P("ceo", { name: $("#cn").value }, "CEO replaced");
+        };
+        $("#bds").onclick = () => {
+          const v = $("#bd").value;
+          if (v !== "") P("band", { value: +v }, "Limit updated");
+        };
+        $("#sl").onclick = () => {
+          const cc = D.companies.find((x) => x.id === CO);
+          P("showLimit", { value: !cc.showLimit });
+        };
+        $("#dl").onclick = () => {
+          if (
+            confirm(
+              "Delist " +
+                CO +
+                "? Every player holding it is cashed out at the current price.",
+            )
+          ) {
+            const id = CO;
+            CO = null;
+            closeModal();
+            act("delist", { realm: R, id }, id + " delisted");
+          }
+        };
+        $("#fl").value = c.float;
+        paintModal();
+      }
+      function paintModal() {
+        const c = D.companies && D.companies.find((x) => x.id === CO);
+        if (!c || !$("#mstat")) return;
+        setH(
+          $("#mstat"),
+          [
+            ["Price", money(c.price)],
+            ["CEO", esc(c.ceo)],
+            ["Held by players", num(c.held)],
+            ["Releasing", num(c.flood)],
+            ["Available", num(c.avail)],
+            [
+              "Pending move",
+              (c.shock >= 0 ? "+" : "") + c.shock.toFixed(2) + "%",
+            ],
+          ]
+            .map(
+              (s) =>
+                `<div class="stat" style="display:inline-block;margin:0 8px 8px 0"><small>${s[0]}</small><b style="font-size:16px">${s[1]}</b></div>`,
+            )
+            .join(""),
+        );
+        $("#sl").textContent = c.showLimit
+          ? "Hide limits from players"
+          : "Show limits to players";
+      }
+      function closeModal() {
+        const m = $("#modal");
+        if (m) m.remove();
+      }
+
+      /* ---------- listings ---------- */
+      const bandFor = (cap) =>
+        Math.round(
+          Math.max(
+            6,
+            Math.min(35, 40 - 11 * Math.log10(Math.max(cap / 1e9, 0.05))),
+          ) * 2,
+        ) / 2;
+      const tierFor = (cap) => {
+        const b = cap / 1e9;
+        return b >= 100
+          ? "Mega cap"
+          : b >= 25
+            ? "Large cap"
+            : b >= 5
+              ? "Mid cap"
+              : "Small cap";
+      };
+      function buildListings() {
+        $("#view").innerHTML =
+          `<div class="g2"><section class="card"><h2>Add a company</h2>
+    <div class="r2"><div class="f"><label>Ticker</label><input id="nid" maxlength="5" placeholder="ACME"></div><div class="f"><label>Company name</label><input id="nnm" maxlength="32" placeholder="Acme Robotics"></div></div>
+    <div class="f"><label>Sector</label><input id="nsc" list="sectors" maxlength="16" placeholder="Pick one or type a new sector"><datalist id="sectors"></datalist></div>
+    <div class="r2"><div class="f"><label>Starting price ($)</label><input id="npr" type="number" min="1" max="5000" step="0.5"></div><div class="f"><label>Shares outstanding (millions)</label><input id="nsh" type="number" min="10" max="50000" step="10"></div></div>
+    <div class="f"><label>Tradable float for players (shares)</label><input id="nfl" type="number" min="100" step="50" placeholder="Leave blank for an automatic amount"><small>This is the most shares players can own in total. When it runs out, nobody can buy more.</small></div>
+    <div class="f"><label>Volatility</label><div class="seg" id="nvol">${VOLS.map((v) => `<button data-v="${v[1]}">${v[0]}</button>`).join("")}</div></div>
+    <div class="r2"><div class="f"><label>CEO (blank for a random name)</label><input id="nce" maxlength="30"></div><div class="f"><label>Tagline (optional)</label><input id="ntg" maxlength="60"></div></div>
+    <div class="f"><label>Add to</label><div class="seg" id="nsc2"><button data-s="one">This server</button><button data-s="all">All servers</button></div></div>
+    <div class="prev" id="nprev"></div><button class="btn full" id="nadd">Add company</button></section></div>`;
+        $("#nid").value = N.id;
+        $("#nnm").value = N.name;
+        $("#nsc").value = N.sector;
+        $("#npr").value = N.price;
+        $("#nsh").value = N.sharesM;
+        $("#nfl").value = N.flt;
+        $("#nce").value = N.ceo;
+        $("#ntg").value = N.tagline;
+        $("#nid").oninput = (e) => {
+          N.id = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+          e.target.value = N.id;
+          syncAdd();
+        };
+        $("#nnm").oninput = (e) => {
+          N.name = e.target.value;
+          syncAdd();
+        };
+        $("#nsc").oninput = (e) => {
+          N.sector = e.target.value;
+          syncAdd();
+        };
+        $("#npr").oninput = (e) => {
+          N.price = +e.target.value;
+          syncAdd();
+        };
+        $("#nsh").oninput = (e) => {
+          N.sharesM = +e.target.value;
+          syncAdd();
+        };
+        $("#nfl").oninput = (e) => {
+          N.flt = e.target.value;
+        };
+        $("#nce").oninput = (e) => {
+          N.ceo = e.target.value;
+        };
+        $("#ntg").oninput = (e) => {
+          N.tagline = e.target.value;
+        };
+        $("#nvol").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (b) {
+            N.vol = +b.dataset.v;
+            syncAdd();
+          }
+        };
+        $("#nsc2").onclick = (e) => {
+          const b = e.target.closest("button");
+          if (b) {
+            N.scope = b.dataset.s;
+            syncAdd();
+          }
+        };
+        $("#nadd").onclick = addCompany;
+        syncAdd();
+      }
+      function syncAdd() {
+        if (!$("#nprev")) return;
+        $$("#nvol button").forEach((b) =>
+          b.classList.toggle("on", +b.dataset.v === N.vol),
+        );
+        $$("#nsc2 button").forEach((b) =>
+          b.classList.toggle("on", b.dataset.s === N.scope),
+        );
+        if (D) {
+          const dl = $("#sectors"),
+            key = D.sectors.join();
+          if (dl.dataset.key !== key) {
+            dl.innerHTML = D.sectors
+              .map((s) => `<option value="${esc(s)}">`)
+              .join("");
+            dl.dataset.key = key;
+          }
+        }
+        const cap = N.price * N.sharesM * 1e6;
+        $("#nprev").innerHTML =
+          `<div class="row"><span class="chip">${esc(N.id || "TICKER")}</span><small>${esc(N.name || "Company name")}</small></div><h4>${isFinite(cap) && cap > 0 ? compact(cap) + " market cap" : "Enter a price and share count"}</h4><small>${isFinite(cap) && cap > 0 ? tierFor(cap) + ", session limit of plus or minus " + bandFor(cap).toFixed(1) + "%." : ""}</small>`;
+      }
+      async function addCompany() {
+        const btn = $("#nadd");
+        btn.disabled = true;
+        try {
+          await api("addcompany", {
+            realm: N.scope === "all" ? "all" : R,
+            id: N.id,
+            name: N.name,
+            sector: N.sector,
+            price: N.price,
+            sharesM: N.sharesM,
+            vol: N.vol,
+            ceo: N.ceo,
+            tagline: N.tagline,
+            floatShares: +N.flt || 0,
+          });
+          toast(N.id + " is now listed");
+          N.id = "";
+          N.name = "";
+          N.ceo = "";
+          N.tagline = "";
+          N.flt = "";
+          buildListings();
+          poll();
+        } catch (e) {
+          toast(e.message, true);
+        }
+        btn.disabled = false;
+      }
+
+      /* ---------- players ---------- */
+      function buildPlayers() {
+        $("#view").innerHTML =
+          `<section class="card"><h2>Players</h2><p class="note">Banning a player removes their shares. Those shares return to the market slowly, not all at once.</p><div class="scroll" id="pls"></div></section>`;
+      }
+      function paintPlayers() {
+        setH(
+          $("#pls"),
+          D.players.length
+            ? `<table class="tbl"><tr><th>Player</th><th>Level</th><th>Net worth</th><th>Cash</th><th>Trades</th><th>Actions</th></tr>${D.players
+                .map(
+                  (p) => `<tr>
+    <td>${esc(p.avatar)} <b>${esc(p.name)}</b> ${p.banned ? '<span class="tag n">banned</span>' : ""}${p.muted ? ' <span class="tag r">muted</span>' : ""}</td><td>${p.level}</td><td>${money(p.worth)}</td><td>${money(p.cash)}</td><td>${p.trades}</td>
+    <td><div class="acts"><button class="btn ghost" data-g="${esc(p.name)}">Give cash</button><button class="btn ghost" data-m="${esc(p.name)}" data-on="${p.muted ? 0 : 1}">${p.muted ? "Unmute" : "Mute"}</button><button class="btn ghost" data-b="${esc(p.name)}" data-on="${p.banned ? 0 : 1}">${p.banned ? "Unban" : "Ban"}</button><button class="btn ghost" data-x="${esc(p.name)}">Reset</button></div></td></tr>`,
+                )
+                .join("")}</table>`
+            : "<small>No players on this server yet.</small>",
+        );
+        $$("[data-g]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              const v = prompt(
+                "Cash to give " + b.dataset.g + " (negative to take)",
+                "1000",
+              );
+              if (v)
+                act("player", {
+                  name: b.dataset.g,
+                  action: "give",
+                  amount: +v,
+                });
+            }),
+        );
+        $$("[data-m]").forEach(
+          (b) =>
+            (b.onclick = () =>
+              act("player", {
+                name: b.dataset.m,
+                action: b.dataset.on === "1" ? "mute" : "unmute",
+              })),
+        );
+        $$("[data-b]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              if (
+                b.dataset.on === "1" &&
+                !confirm(
+                  "Ban " +
+                    b.dataset.b +
+                    "? Their shares go back to the market slowly.",
+                )
+              )
+                return;
+              act("player", {
+                name: b.dataset.b,
+                action: b.dataset.on === "1" ? "ban" : "unban",
+              });
+            }),
+        );
+        $$("[data-x]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              if (
+                confirm(
+                  "Reset " +
+                    b.dataset.x +
+                    " to starting cash and release their shares slowly back to the market?",
+                )
+              )
+                act("player", { name: b.dataset.x, action: "reset" });
+            }),
+        );
+      }
+
+      /* ---------- chat ---------- */
+      function buildChat() {
+        $("#view").innerHTML =
+          `<div class="g2"><section class="card"><h2>Trading floor</h2><div class="log chat" id="clog" style="max-height:60vh"></div></section>
+    <section class="card"><h2>Moderation</h2><div class="f"><label>Announce on the trading floor</label><div class="inl"><input id="an" maxlength="120" placeholder="Server maintenance in 5 minutes"><button class="btn" id="ab">Send</button></div></div><button class="btn ghost" id="cc">Clear chat</button></section></div>`;
+        $("#ab").onclick = async () => {
+          const v = $("#an").value.trim();
+          if (!v) return;
+          await act(
+            "realm",
+            { realm: R, action: "announce", text: v },
+            "Announced",
+          );
+          $("#an").value = "";
+        };
+        $("#cc").onclick = () =>
+          act("realm", { realm: R, action: "clearChat" }, "Chat cleared");
+      }
+      function paintChat() {
+        setH(
+          $("#clog"),
+          D.chat.length
+            ? D.chat
+                .map(
+                  (m) =>
+                    `<div class="it">${m.sys ? `<small>${esc(m.text)}</small>` : `<div class="chat"><b>${esc(m.avatar)} ${esc(m.name)}</b> <small>${new Date(m.ts).toLocaleTimeString()}</small><div>${esc(m.text)}</div></div>`}</div>`,
+                )
+                .join("")
+            : "<small>Nobody has spoken yet.</small>",
+        );
+      }
+
+      /* ---------- arenas ---------- */
+      function buildArenas() {
+        $("#view").innerHTML =
+          `<section class="card"><div class="cardhead"><h2>Arenas</h2><div class="acts"><button class="btn ghost" id="oa">Open all</button><button class="btn ghost warn" id="ca">Close all</button></div></div>
+  <p class="note">A closed arena is offline. Nobody can register or sign in, players inside are signed out at once, and its market freezes until you reopen it.</p><div id="arl" class="col"></div></section>`;
+        $("#oa").onclick = () =>
+          Promise.all(
+            OV.realms.map((r) => api("realm", { realm: r.id, open: true })),
+          ).then(poll);
+        $("#ca").onclick = () => {
+          if (confirm("Close every arena? Everyone will be signed out."))
+            Promise.all(
+              OV.realms.map((r) => api("realm", { realm: r.id, open: false })),
+            ).then(poll);
+        };
+      }
+      function paintArenas() {
+        setH(
+          $("#arl"),
+          OV.realms
+            .map(
+              (
+                r,
+              ) => `<div class="arena stat" style="border-radius:22px"><div><b style="font-size:17px">${esc(r.name)}</b> <span class="pill2 ${r.open ? "o" : "c"}">${r.open ? (r.paused ? "Open, paused" : "Open") : "Closed"}</span><br><small>${r.players} players, ${r.online} online</small></div>
+    <button class="btn ${r.open ? "dn" : "up"}" data-ar="${r.id}" data-open="${r.open ? 0 : 1}">${r.open ? "Close arena" : "Open arena"}</button></div>`,
+            )
+            .join(""),
+        );
+        $$("[data-ar]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              if (
+                b.dataset.open === "0" &&
+                !confirm("Close this arena? Everyone inside is signed out.")
+              )
+                return;
+              act(
+                "realm",
+                { realm: b.dataset.ar, open: b.dataset.open === "1" },
+                b.dataset.open === "1" ? "Arena opened" : "Arena closed",
+              );
+            }),
+        );
+      }
+
+      /* ---------- access ---------- */
+      function buildAccess() {
+        $("#view").innerHTML =
+          `<div class="g2"><section class="card"><h2>Projector dashboard</h2><p class="note">A one-page live view of the market for a big screen: index and sector charts, movers, leaderboard and news. The dashboard key shows the charts. The admin key also unlocks movers, leaderboard and news.</p>
+  <div class="f"><label>Page address</label><input id="gu" readonly></div><div class="f"><label>Dashboard key</label><div class="inl"><input id="gk" maxlength="32"><button class="btn" id="gs">Change key</button></div></div><a class="btn ghost" href="/graph" target="_blank" style="display:inline-block">Open dashboard</a></section></div>`;
+        $("#gu").value = location.origin + "/graph";
+        $("#gs").onclick = () =>
+          act("graphkey", { key: $("#gk").value }, "Dashboard key changed");
+      }
+      function paintAccess() {
+        const g = $("#gk");
+        if (g && document.activeElement !== g && !g.dataset.set) {
+          g.value = OV.graphKey;
+          g.dataset.set = 1;
+        }
+      }
+
+      const BUILD = {
+        overview: buildOverview,
+        news: buildNews,
+        companies: buildCompanies,
+        listings: buildListings,
+        players: buildPlayers,
+        chat: buildChat,
+        arenas: buildArenas,
+        access: buildAccess,
+      };
+      const PAINT = {
+        overview: paintOverview,
+        news: paintNews,
+        companies: paintCompanies,
+        listings: () => syncAdd(),
+        players: paintPlayers,
+        chat: paintChat,
+        arenas: paintArenas,
+        access: paintAccess,
+      };
+
+      (async function init() {
+        applyTheme();
+        if (KEY) {
+          try {
+            await api("overview?realm=" + R);
+            start();
+            return;
+          } catch (e) {}
+        }
+        gate();
+      })();
+    </script>
+  </body>
+</html>

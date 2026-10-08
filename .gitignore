@@ -1,0 +1,5 @@
+out/
+data/
+*.zip
+admin_acess.txt
+.DS_Store
