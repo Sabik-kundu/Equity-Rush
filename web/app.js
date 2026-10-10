@@ -417,11 +417,80 @@ const ding = (up) => {
   beep(up ? 990 : 220, 0.12, "square", 0.03, 0.08);
 };
 
+/* swipe-to-dismiss for floating notifications (toast, pop-up, breaking banner).
+   Uses the separate CSS `translate` property so it stacks on top of the
+   existing CSS animations. dir: 1 = may also be swiped down, -1 = up. */
+function swipeDismiss(el, onGone, dir) {
+  if (el._sw) return;
+  el._sw = true;
+  el.style.touchAction = "none";
+  let id = null, x0 = 0, y0 = 0, dx = 0, dy = 0, t0 = 0, axis = "";
+  const set = () => {
+    el.style.translate = axis === "y" ? "0 " + dy + "px" : dx + "px 0";
+  };
+  el.addEventListener("pointerdown", (e) => {
+    if (id !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
+    id = e.pointerId;
+    x0 = e.clientX; y0 = e.clientY; dx = dy = 0; axis = ""; t0 = Date.now();
+    el._moved = false;
+    el.setPointerCapture(id);
+    el.style.animationPlayState = "paused";
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (e.pointerId !== id) return;
+    dx = e.clientX - x0;
+    dy = e.clientY - y0;
+    if (!axis) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+    }
+    if (axis === "y") dy = dir > 0 ? Math.max(0, dy) : Math.min(0, dy);
+    el._moved = true;
+    set();
+  });
+  const end = (e) => {
+    if (e.pointerId !== id) return;
+    id = null;
+    const d = axis === "y" ? dy : dx,
+      dist = Math.abs(d),
+      vel = dist / Math.max(1, Date.now() - t0);
+    if (axis && (dist > 60 || (dist > 20 && vel > 0.5))) {
+      const to = (d < 0 ? -1 : 1) * (axis === "y" ? 220 : window.innerWidth),
+        from = el.style.translate || "0 0";
+      const a = el.animate(
+        [
+          { translate: from, opacity: 1 },
+          { translate: axis === "y" ? "0 " + to + "px" : to + "px 0", opacity: 0 },
+        ],
+        { duration: 180, easing: "ease-out", fill: "forwards" },
+      );
+      el._anim = a;
+      a.onfinish = () => onGone();
+      return;
+    }
+    if (!axis) {
+      el.style.animationPlayState = "";
+      return;
+    }
+    const a = el.animate(
+      [{ translate: el.style.translate }, { translate: "0 0" }],
+      { duration: 160, easing: "ease-out" },
+    );
+    a.onfinish = () => {
+      el.style.translate = "";
+      el.style.animationPlayState = "";
+    };
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+}
+
 function toast(msg, cls = "") {
   const t = document.createElement("div");
   t.className = "toast " + cls;
   t.textContent = msg;
   document.body.appendChild(t);
+  swipeDismiss(t, () => t.remove(), 1);
   setTimeout(() => t.remove(), 2700);
 }
 
@@ -455,6 +524,7 @@ function nextEvent() {
   p.className = "pop";
   p.innerHTML = `<span class="pi">${ic(EVENT_ICON[e.k] || "star")}</span><div><b>${esc(e.title)}</b><small>${esc(e.sub)}</small></div>`;
   document.body.appendChild(p);
+  swipeDismiss(p, () => p.remove(), -1);
   celebrate(e.k === "level" ? 40 : 22);
   buzz([40, 60, 40]);
   chime();
@@ -1144,9 +1214,20 @@ function banner(n) {
   const badge = c
     ? monoEl(c)
     : `<div class="mono" style="--h:0">${n.tType === "sector" ? esc(n.tId.slice(0, 2).toUpperCase()) : "MK"}</div>`;
+  if (el._anim) {
+    el._anim.cancel();
+    el._anim = null;
+  }
+  el.style.translate = "";
+  el.style.animationPlayState = "";
+  swipeDismiss(el, () => el.classList.remove("on"), -1);
   el.className = "brk on " + sc[0];
   el.innerHTML = `${badge}<div><small>${label}, ${sc[1].toLowerCase()}</small><b>${esc(n.headline)}</b></div>`;
   el.onclick = () => {
+    if (el._moved) {
+      el._moved = false;
+      return;
+    }
     el.classList.remove("on");
     if (c) openCo(c.id);
     else go("news");

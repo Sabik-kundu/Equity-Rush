@@ -250,6 +250,9 @@
         background: var(--dn);
       }
 
+      .d > main {
+        min-height: 0;
+      }
       .grid,
       .left,
       .right {
@@ -564,15 +567,27 @@
         box-shadow: var(--clay-s);
         padding: 0.7em 0;
         white-space: nowrap;
+        /* the ticker is one line, always: it can never grow and squash the panels above */
+        height: 3em;
+        min-height: 0;
+        max-height: 3em;
+        flex: none;
+        contain: layout paint;
       }
       .tape .tk {
-        display: inline-flex;
+        display: flex;
+        flex-wrap: nowrap;
+        width: max-content;
         gap: 2.2em;
         padding-left: 2.2em;
+        white-space: nowrap;
         animation: tk 60s linear infinite;
+        will-change: transform;
       }
       .tape .ti {
         font-weight: 700;
+        flex: none;
+        white-space: nowrap;
       }
       .tape .ti b {
         font-weight: 800;
