@@ -61,24 +61,24 @@
   color-scheme: light;
 }
 [data-theme="dark"] {
-  --bg: #131625;
-  --sf: #1c2036;
-  --well: #161a2d;
-  --ink: #eaedfb;
-  --mut: #9aa2c4;
+  --bg: #0a0a0c;
+  --sf: #141417;
+  --well: #0e0e10;
+  --ink: #f5eded;
+  --mut: #a69b9d;
   --line: rgba(255, 255, 255, 0.08);
-  --pri: #8b8fff;
-  --pri-l: #2b2f5c;
+  --pri: #ff3d3d;
+  --pri-l: #3b1215;
   --up: #2fd6a3;
-  --up-l: #12382f;
-  --dn: #ff6d8d;
-  --dn-l: #40202c;
+  --up-l: #0f3028;
+  --dn: #ff6b8e;
+  --dn-l: #3f1522;
   --gold: #f6b93b;
   --gold-l: #3a2f14;
   --vio: #a78bff;
-  --sh: rgba(3, 5, 14, 0.65);
+  --sh: rgba(0, 0, 0, 0.75);
   --hi: rgba(255, 255, 255, 0.045);
-  --scrim: rgba(3, 5, 14, 0.6);
+  --scrim: rgba(0, 0, 0, 0.65);
   --clay:
     6px 6px 14px var(--sh), -5px -5px 12px var(--hi),
     inset 1px 1px 4px rgba(255, 255, 255, 0.06);
@@ -439,4 +439,43 @@ svg.i.fill {
 .sent.sn2 {
   background: var(--nm2-bg);
   color: var(--nm2-tx);
+}
+
+/* ---- Dark theme: red / black overrides (light theme untouched) ---- */
+[data-theme="dark"] :focus-visible {
+  outline-color: rgba(255, 61, 61, 0.6);
+}
+[data-theme="dark"] .field:focus {
+  box-shadow:
+    var(--inset),
+    0 0 0 3px rgba(255, 61, 61, 0.5);
+}
+[data-theme="dark"] .search:focus-within {
+  box-shadow:
+    var(--inset),
+    0 0 0 3px rgba(255, 61, 61, 0.45);
+}
+[data-theme="dark"] .pod.me {
+  box-shadow:
+    var(--clay),
+    0 0 0 3px rgba(255, 61, 61, 0.5);
+}
+[data-theme="dark"] .btn:not(.up):not(.dn):not(.soft) {
+  background: linear-gradient(145deg, #ff4d4d, #c81d25);
+  box-shadow:
+    6px 6px 14px rgba(255, 61, 61, 0.28),
+    -4px -4px 10px var(--hi),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.3),
+    inset -3px -3px 7px rgba(80, 0, 0, 0.35);
+}
+[data-theme="dark"] .btn:not(.up):not(.dn):not(.soft):active {
+  box-shadow:
+    inset 3px 3px 8px rgba(70, 0, 0, 0.55),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.18);
+}
+[data-theme="dark"] .brand .mark {
+  filter: drop-shadow(0 12px 18px rgba(255, 61, 61, 0.3));
+}
+[data-theme="dark"] .side .logo svg {
+  filter: drop-shadow(3px 4px 6px rgba(255, 61, 61, 0.3));
 }
