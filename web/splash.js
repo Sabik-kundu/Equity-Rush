@@ -67,7 +67,7 @@
   if (!window.gsap || reduce) {
     el.querySelectorAll(".sp-logo,.sp-tag,.sp-bar,.sp-title .ch").forEach(function (n) { n.style.opacity = 1; });
     played = true;
-    setTimeout(function () { played = true; tryLeave(); }, reduce ? 350 : 900);
+    setTimeout(function () { played = true; tryLeave(); }, reduce || window.EQ_LITE ? 350 : 900);
     return;
   }
   if (window.DrawSVGPlugin) gsap.registerPlugin(DrawSVGPlugin);

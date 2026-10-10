@@ -13,6 +13,23 @@
     <title>Equity Rush</title>
     <script>
       (function () {
+        /* lite mode: auto for weak phones, override with ?lite=1 / ?lite=0 (remembered) */
+        var q = /[?&]lite=([01])/.exec(location.search);
+        if (q) localStorage.setItem("br_lite", q[1]);
+        var m = localStorage.getItem("br_lite");
+        var n = navigator, c = n.connection || {};
+        var auto =
+          (n.deviceMemory && n.deviceMemory <= 4) ||
+          (n.hardwareConcurrency && n.hardwareConcurrency <= 4) ||
+          c.saveData === true ||
+          /2g/.test(c.effectiveType || "");
+        var lite = m === "1" || (m !== "0" && !!auto);
+        window.EQ_LITE = lite;
+        if (lite) document.documentElement.classList.add("lite");
+      })();
+    </script>
+    <script>
+      (function () {
         var m = localStorage.getItem("br_theme") || "auto";
         var d =
           m === "dark" ||
@@ -35,6 +52,7 @@
     <link rel="stylesheet" href="/theme.css" />
     <link rel="stylesheet" href="/app.css" />
     <link rel="stylesheet" href="/polish.css" />
+    <link rel="stylesheet" href="/lite.css" />
   </head>
   <body>
     <div id="splash" role="status" aria-live="polite" aria-label="Loading Equity Rush">
@@ -50,8 +68,13 @@
     </div>
     <div id="app"></div>
     <div id="fx"></div>
-    <script src="/vendor/gsap.min.js"></script>
-    <script src="/vendor/DrawSVGPlugin.min.js"></script>
+    <script>
+      /* the intro animation library is skipped entirely in lite mode */
+      if (!window.EQ_LITE)
+        document.write(
+          '<script src="/vendor/gsap.min.js"><\/script><script src="/vendor/DrawSVGPlugin.min.js"><\/script>',
+        );
+    </script>
     <script src="/splash.js"></script>
     <script src="/icons.js"></script>
     <script src="/chart.js"></script>

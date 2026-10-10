@@ -2,6 +2,11 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const app = $("#app");
+const LITE = !!window.EQ_LITE;
+/* lite mode: fewer repaints per second, cheaper effects */
+const FLUSH_GAP = LITE ? 900 : 0,
+  TAPE_EVERY = LITE ? 4 : 2,
+  SPARK_EVERY = LITE ? 6 : 3;
 
 const S = {
   token: localStorage.getItem("br_token"),
@@ -421,6 +426,7 @@ function toast(msg, cls = "") {
 }
 
 function celebrate(n = 26) {
+  if (LITE) n = Math.min(n, 10);
   const fx = $("#fx"),
     colors = ["#5b5fef", "#0a9c70", "#f2a007", "#e63a66", "#8a63f2", "#3fb8ff"];
   for (let i = 0; i < n; i++) {
@@ -1075,11 +1081,19 @@ function onTick(m) {
   S.paused = m.paused;
   S.on = m.on;
   S.skew = m.t - Date.now();
-  if (!S.raf) S.raf = requestAnimationFrame(flush);
+  if (!S.raf) {
+    const wait = FLUSH_GAP ? Math.max(0, (S.lastFlush || 0) + FLUSH_GAP - performance.now()) : 0;
+    S.raf = wait
+      ? setTimeout(() => {
+          S.raf = requestAnimationFrame(flush);
+        }, wait)
+      : requestAnimationFrame(flush);
+  }
 }
 
 function flush() {
   S.raf = 0;
+  S.lastFlush = performance.now();
   if (document.hidden) return;
   Object.keys(S.charts).forEach((k) => {
     const ch = S.charts[k];
@@ -1093,7 +1107,7 @@ function flush() {
     ch.appended();
   });
   paintTop();
-  if (S.tickN % 2 === 0) paintTape();
+  if (S.tickN % TAPE_EVERY === 0) paintTape();
   const covered = !!(S.open || S.viewer);
   if (S.view === "market" && !covered) paintCards();
   else if (S.view === "portfolio" && !covered) paintPortfolio();
@@ -1402,7 +1416,7 @@ const sparkPts = (a, w = 90, h = 26) => {
 };
 
 function paintCards() {
-  const doSpark = S.tickN % 3 === 0;
+  const doSpark = S.tickN % SPARK_EVERY === 0;
   $$(".co", main()).forEach((el) => {
     const c = S.co[el.dataset.id];
     if (!c) return;

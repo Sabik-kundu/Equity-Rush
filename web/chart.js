@@ -1,4 +1,5 @@
 "use strict";
+const CH_LITE = !!window.EQ_LITE;
 class Chart {
   static colors() {
     if (!Chart._c) {
@@ -52,7 +53,7 @@ class Chart {
     this.W = 0;
     this.H = 0;
     this.raf = 0;
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = Math.min(window.devicePixelRatio || 1, CH_LITE ? 1.5 : 2);
     this.cv = document.createElement("canvas");
     this.cv.style.cssText = "width:100%;height:100%;display:block";
     if (this.o.interactive) this.cv.style.touchAction = this.o.touch || "none";
@@ -162,7 +163,7 @@ class Chart {
     if (!W || !H) return;
     this.W = W;
     this.H = H;
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = Math.min(window.devicePixelRatio || 1, CH_LITE ? 1.5 : 2);
     this.cv.width = Math.round(W * this.dpr);
     this.cv.height = Math.round(H * this.dpr);
     this.paint();
@@ -414,7 +415,7 @@ class Chart {
     cx.rect(L0, T - 2, pw, ph + 4);
     cx.clip();
     const n = i1 - i0 + 1,
-      stride = Math.max(1, Math.floor(n / (pw * 1.2)));
+      stride = Math.max(1, Math.floor(n / (pw * (CH_LITE ? 0.6 : 1.2))));
     const path = new Path2D();
     let lastI = i0;
     for (let i = i0; i <= i1; i += stride) {
@@ -552,12 +553,19 @@ class Chart {
           Math.min(B - bh, yy - bh - 10 < T ? yy + 12 : yy - bh - 10),
         );
         cx.save();
-        cx.shadowColor = "rgba(0,0,0,.22)";
-        cx.shadowBlur = 14;
-        cx.shadowOffsetY = 4;
+        if (!CH_LITE) {
+          cx.shadowColor = "rgba(0,0,0,.22)";
+          cx.shadowBlur = 14;
+          cx.shadowOffsetY = 4;
+        }
         Chart.rr(cx, bx, by, bw, bh, 12);
         cx.fillStyle = C.sf;
         cx.fill();
+        if (CH_LITE) {
+          cx.strokeStyle = C.line;
+          cx.lineWidth = 1;
+          cx.stroke();
+        }
         cx.restore();
         cx.textAlign = "left";
         cx.fillStyle = C.mut;
