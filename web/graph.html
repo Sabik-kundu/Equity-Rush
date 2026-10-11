@@ -77,6 +77,11 @@
       }
 
       /* ---------- dashboard ---------- */
+      [data-theme="dark"] {
+        --bg: #050505;
+        --sf: #0f0f11;
+        --well: #09090a;
+      }
       .dash {
         --gap: clamp(10px, 1.1vw, 18px);
         font-size: clamp(13px, 0.62vw + 8px, 24px);
@@ -732,7 +737,7 @@
           grid-template-rows: minmax(0, 1fr);
         }
         .right {
-          grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr);
+          grid-template-rows: minmax(0, 1fr);
         }
         .il {
           grid-auto-rows: minmax(0, 1fr);
@@ -934,7 +939,6 @@
           </section>
         </div>
         <div class="right" id="right">
-          <section class="card ix"><div class="ct"><b>Indices</b><small id="sn"></small></div><div class="il" id="sg"></div></section>
           <section class="card nws"><div class="ct"><b>Market news</b><small>live</small></div><div class="lst" id="nl"></div></section>
         </div>
       </main>
@@ -954,7 +958,6 @@
           span = +b.dataset.r;
           $$("#rc button").forEach((x) => x.classList.toggle("on", x === b));
           Object.values(charts).forEach((c) => c.setSpan(span));
-          paintSectors(true);
         };
         applyTheme();
         tickClock();
@@ -1042,7 +1045,7 @@
         Object.values(charts).forEach((c) => c.destroy());
         charts = {};
         ser = {};
-        const ids = ["INDEX", ...OV.sectors.map((s) => s.name)];
+        const ids = ["INDEX"];
         await Promise.all(
           ids.map(async (id) => {
             ser[id] = { t: [], v: [] };
@@ -1059,6 +1062,7 @@
           source: ser.INDEX,
           interactive: false,
           fmt,
+          color: () => (isDark() ? Chart.colors().pri : null),
           minSpan: 20,
           fs: fsScale(),
         });
@@ -1119,7 +1123,6 @@
         if (!OV || !$("#iv")) return;
         paintHead();
         paintIndex();
-        paintSectors();
         paintNews();
       }
 

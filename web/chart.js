@@ -409,7 +409,7 @@ class Chart {
     }
 
     const up = v[i1] >= v[i0],
-      col = up ? C.up : C.dn;
+      col = (this.o.color && this.o.color()) || (up ? C.up : C.dn);
     cx.save();
     cx.beginPath();
     cx.rect(L0, T - 2, pw, ph + 4);
