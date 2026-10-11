@@ -852,6 +852,15 @@ final class Realm {
                 "ix", Arrays.asList(r2(index()), r2(ixOpen), r2(ixHigh), r2(ixLow)), "s", sv, "n", sectors());
     }
 
+    synchronized List<Object> graphNews() {
+        List<Object> out = new ArrayList<>();
+        for (News n : news) {
+            if (out.size() >= 12) break;
+            out.add(n.view(false));
+        }
+        return out;
+    }
+
     synchronized Map<String, Object> graphHistory(String id) {
         if (id.equals("INDEX")) return ix.merged();
         Series se = sx.get(id);

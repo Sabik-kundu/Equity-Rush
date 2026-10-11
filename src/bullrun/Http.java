@@ -339,6 +339,11 @@ final class Http {
             return game.realm(r.q.getOrDefault("realm", "alpha")).graphLive();
         });
 
+        get("/api/graph/news", r -> {
+            r.graph();
+            return Json.of("news", game.realm(r.q.getOrDefault("realm", "alpha")).graphNews());
+        });
+
         get("/api/graph/history", r -> {
             r.graph();
             return game.realm(r.q.getOrDefault("realm", "alpha")).graphHistory(r.q.getOrDefault("id", "INDEX"));

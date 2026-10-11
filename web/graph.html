@@ -526,7 +526,7 @@
       }
       .nw h4 {
         margin: 0;
-        font-size: 1.05em;
+        font-size: 1.15em;
         line-height: 1.25;
         font-weight: 800;
       }
@@ -723,7 +723,7 @@
           max-width: none;
           padding: calc(var(--safe-t) + clamp(12px, 1.3vw, 26px))
             clamp(14px, 1.6vw, 32px) calc(var(--safe-b) + clamp(12px, 1.3vw, 26px));
-          grid-template-rows: auto auto minmax(0, 1fr) auto;
+          grid-template-rows: auto minmax(0, 1fr);
         }
         .grid {
           grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -732,10 +732,7 @@
           grid-template-rows: minmax(0, 1fr);
         }
         .right {
-          grid-template-rows: minmax(0, 2.1fr) minmax(0, 1fr);
-        }
-        .right.locked-mode {
-          grid-template-rows: minmax(0, 1fr) auto;
+          grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr);
         }
         .il {
           grid-auto-rows: minmax(0, 1fr);
@@ -887,26 +884,6 @@
         if (!r.ok) throw new Error(j.error || "Request failed");
         return j;
       }
-      async function fetchFull() {
-        const r = await fetch(
-          "/api/admin/overview?realm=" + R + "&sections=companies,news,players",
-          { headers: { "X-Admin": KEY } },
-        );
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok || !j.realm) throw new Error("locked");
-        return j.realm;
-      }
-      async function tryFull() {
-        try {
-          D = await fetchFull();
-          FULL = true;
-        } catch (e) {
-          FULL = false;
-          D = null;
-        }
-        setRight();
-      }
-
       /* ---------- gate ---------- */
       function gate(msg = "") {
         clearInterval(tLive);
@@ -949,7 +926,6 @@
         </div>
         <div class="clk" id="clk"></div>
       </header>
-      <section class="strip" id="strip"></section>
       <main class="grid">
         <div class="left">
           <section class="card idx">
@@ -959,14 +935,12 @@
         </div>
         <div class="right" id="right">
           <section class="card ix"><div class="ct"><b>Indices</b><small id="sn"></small></div><div class="il" id="sg"></div></section>
-          <div class="xtra" id="xtra"></div>
+          <section class="card nws"><div class="ct"><b>Market news</b><small>live</small></div><div class="lst" id="nl"></div></section>
         </div>
       </main>
-      <footer class="tape" id="tape"></footer>
     </div>`;
         Object.keys(cache).forEach((k) => delete cache[k]);
-        rightMode = "";
-        tapeSig = "";
+        NEWS = [];
         $("#out").onclick = () => {
           sessionStorage.removeItem("gk");
           KEY = "";
@@ -1007,7 +981,6 @@
             minute: "2-digit",
             second: "2-digit",
           });
-        if (FULL) paintNews();
       }
       function wake() {
         document.body.classList.remove("idle");
@@ -1058,7 +1031,7 @@
             sig = key;
             await build();
           }
-          await tryFull();
+          await loadNews();
           paintAll();
         } catch (e) {
           if (/key/i.test(e.message)) gate(e.message);
@@ -1095,16 +1068,7 @@
       }
 
       async function slow() {
-        if (document.hidden || !OV) return;
-        if (!FULL) return;
-        try {
-          D = await fetchFull();
-          paintFull();
-        } catch (e) {
-          FULL = false;
-          D = null;
-          setRight();
-        }
+        loadNews();
       }
 
       async function live() {
@@ -1156,9 +1120,7 @@
         paintHead();
         paintIndex();
         paintSectors();
-        paintStrip();
-        if (FULL) paintFull();
-        else paintTape();
+        paintNews();
       }
 
       function paintHead() {
@@ -1250,192 +1212,43 @@
         );
       }
 
-      function paintStrip() {
-        let cap = 0,
-          adv = 0,
-          n = 0;
-        OV.sectors.forEach((s) => {
-          cap += s.cap || 0;
-          adv += s.adv || 0;
-          n += s.n || 0;
-        });
-        const dec = n - adv,
-          tiles = [];
-        if (cap)
-          tiles.push(`<div class="stat"><small>Total market cap</small><b>${compact(cap)}</b></div>`);
-        if (n)
-          tiles.push(
-            `<div class="stat"><small>Companies up and down</small><b>${adv} up, ${dec} down</b><div class="split"><i class="u" style="width:${(adv / n) * 100}%"></i><i class="d" style="width:${(dec / n) * 100}%"></i></div></div>`,
-          );
-        if (FULL && D)
-          tiles.push(
-            `<div class="stat"><small>Traders online</small><b>${D.online ?? 0} of ${D.playerCount ?? 0}</b></div>`,
-          );
-        tiles.push(
-          `<div class="stat"><small>Index high and low</small><b>${fmt(OV.ix.high)} / ${fmt(OV.ix.low)}</b></div>`,
-        );
-        setH("strip", tiles.join(""));
-      }
-
-      /* ---------- right column (needs the admin key) ---------- */
-      function setRight() {
-        const el = $("#right"),
-          xt = $("#xtra");
-        if (!el || !xt) return;
-        const mode = FULL ? "full" : "locked";
-        if (mode === rightMode) return;
-        rightMode = mode;
-        ["mv", "lb", "nl"].forEach((k) => delete cache[k]);
-        el.classList.toggle("locked-mode", mode === "locked");
-        if (mode === "full") {
-          xt.innerHTML = `
-        <section class="card"><div class="ct"><b>Leaderboard</b><small>net worth</small></div><div class="lst" id="lb"></div></section>`;
-          if (OV) paintFull();
-        } else {
-          xt.innerHTML = `<section class="card"><div class="ct"><b>Leaderboard and news</b></div>
-        <div class="locked"><div class="row"><input id="ak" type="password" placeholder="Admin key"><button class="btn" id="ab">Show</button></div><div class="dn" id="am"></div></div></section>`;
-          const go = async () => {
-            const prev = KEY;
-            KEY = $("#ak").value;
-            try {
-              D = await fetchFull();
-              FULL = true;
-              sessionStorage.setItem("gk", KEY);
-              setRight();
-            } catch (e) {
-              KEY = prev;
-              $("#am").textContent = "That key did not unlock the extra panels.";
-            }
-          };
-          $("#ab").onclick = go;
-          $("#ak").onkeydown = (e) => {
-            if (e.key === "Enter") go();
-          };
-          paintTape();
-        }
-      }
-
       function fit(el) {
         if (!el) return;
         while (el.scrollHeight > el.clientHeight + 1 && el.children.length > 1)
           el.lastElementChild.remove();
       }
 
-      function paintFull() {
-        if (!FULL || !D) return;
-        paintStrip();
-        const cos = (D.companies || [])
-          .filter((c) => c.open)
-          .map((c) => ({ c, ch: (c.price / c.open - 1) * 100 }))
-          .sort((a, b) => b.ch - a.ch);
-        const row = ({ c, ch }) =>
-          `<div class="mr"><b>${esc(c.id)}</b><small>${esc(c.name)}, ${money(c.price)}</small><span class="chg ${ch >= 0 ? "u" : "d"}">${pc(ch)}</span></div>`;
-        const up = cos.slice(0, 5),
-          dn = cos.slice(-5).reverse();
-        if (
-          setH(
-            "mv",
-            `<div><h3>Gainers</h3><div class="lst" id="mvu">${up.map(row).join("")}</div></div><div><h3>Losers</h3><div class="lst" id="mvd">${dn.map(row).join("")}</div></div>`,
-          )
-        ) {
-          fit($("#mvu"));
-          fit($("#mvd"));
-        }
-
-        const pl = (D.players || [])
-          .filter((p) => !p.banned)
-          .sort((a, b) => b.worth - a.worth)
-          .slice(0, 10);
-        if (
-          setH(
-            "lb",
-            pl.length
-              ? pl
-                  .map((p, i) => {
-                    const g = (p.worth / START - 1) * 100;
-                    return `<div class="lr"><span class="rk ${i < 3 ? "r" + (i + 1) : ""}">${i + 1}</span><span class="av">${esc(p.avatar || "")}</span><b>${esc(p.name)}</b><span class="lw">${money0(p.worth)}</span><span class="chg ${g >= 0 ? "u" : "d"}">${pc(g)}</span></div>`;
-                  })
-                  .join("")
-              : '<div class="empty">No traders have joined yet.</div>',
-          )
-        )
-          fit($("#lb"));
-
-        paintNews();
-        paintTape();
-      }
-
+      /* ---------- news (public graph feed) ---------- */
+      let NEWS = [];
       function newsHtml(n) {
-        const imp = Number(n.impact) || 0,
-          cls = SENT(imp),
+        const v = Number(n.sent) || 0,
+          cls = v < 0 ? (v === -1 ? "sn1" : "sn2") : v === 0 ? "s0" : v === 1 ? "s1" : "s2",
           who =
-            n.tType === "market"
-              ? "Whole market"
-              : n.tType === "sector"
-                ? esc(n.tId || "")
-                : esc(n.tId || "");
-        let tag = '<span class="tag" style="background:var(--dn);color:#fff">Breaking</span>';
-        if (n.kind === "rumor") {
-          tag = '<span class="tag" style="background:var(--vio);color:#fff">Rumor</span>';
-          if (n.status === "confirmed")
-            tag += '<span class="tag" style="background:var(--up);color:#fff">Confirmed</span>';
-          else if (["debunked", "false", "denied"].includes(n.status))
-            tag += '<span class="tag" style="background:var(--well);color:var(--mut)">Debunked</span>';
-        } else if (n.kind === "update")
-          tag = '<span class="tag" style="background:var(--well);color:var(--mut)">Update</span>';
+            n.tType === "market" ? "Whole market" : esc(n.tId || ""),
+          tag =
+            n.kind === "rumor"
+              ? '<span class="tag" style="background:var(--vio);color:#fff">Rumor</span>'
+              : n.kind === "update"
+                ? '<span class="tag" style="background:var(--well);color:var(--mut)">Update</span>'
+                : '<span class="tag" style="background:var(--dn);color:#fff">Breaking</span>';
         return `<article class="nw ${cls}"><div class="meta">${tag}<span class="chip">${who}</span><span>${ago(n.ts)}</span></div><h4>${esc(n.headline || "")}</h4></article>`;
       }
-
       function paintNews() {
-        if (!FULL || !D) return;
-        const l = (D.news || []).slice(0, 8);
-        if (
-          setH(
-            "nl",
-            l.length
-              ? l.map(newsHtml).join("")
-              : '<div class="empty">The wire is quiet for now.</div>',
-          )
-        )
-          fit($("#nl"));
+        const el = $("#nl");
+        if (!el) return;
+        const html = NEWS.length
+          ? NEWS.slice(0, 10).map(newsHtml).join("")
+          : '<div class="empty">The wire is quiet for now.</div>';
+        if (setH("nl", html)) fit(el);
       }
-
-      function paintTape() {
-        const src =
-          FULL && D && D.companies && D.companies.length
-            ? D.companies.map((c) => [
-                c.id,
-                money(c.price),
-                c.open ? (c.price / c.open - 1) * 100 : 0,
-              ])
-            : OV.sectors.map((s) => [
-                s.name,
-                fmt(s.v),
-                s.open ? (s.v / s.open - 1) * 100 : 0,
-              ]);
-        const tape = $("#tape"),
-          sg = src.map((x) => x[0]).join("|");
-        if (!tape) return;
-        if (sg !== tapeSig) {
-          tapeSig = sg;
-          const one = src
-            .map(
-              (x) =>
-                `<span class="ti" data-k="${esc(x[0])}"><b>${esc(x[0])}</b><em class="p"></em><i class="c"></i></span>`,
-            )
-            .join("");
-          tape.innerHTML = `<div class="tk">${one}${one}</div>`;
-          tape.firstChild.style.animationDuration =
-            Math.max(25, src.length * 5) + "s";
+      async function loadNews() {
+        if (document.hidden || !OV) return;
+        try {
+          NEWS = (await api("news?realm=" + R)).news || [];
+          paintNews();
+        } catch (e) {
+          if (/key/i.test(e.message)) gate(e.message);
         }
-        src.forEach((x) =>
-          $$('.ti[data-k="' + CSS.escape(x[0]) + '"]', tape).forEach((el) => {
-            $(".p", el).textContent = x[1];
-            const c = $(".c", el);
-            c.textContent = pc(x[2]);
-            c.className = "c " + (x[2] >= 0 ? "u" : "d");
-          }),
-        );
       }
 
       document.addEventListener("visibilitychange", () => {
